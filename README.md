@@ -1,3 +1,3 @@
 # MCxPrintLabel
 
-A description of this package.
+Print Labels from SVG input.
