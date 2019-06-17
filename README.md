@@ -8,7 +8,7 @@ Print Labels from SVG input.
 * --test-alignment  #
 
 ```bash
-mcxprint filename.json --
+mcxprint filename.json fileb.json --param=value
 
 # filename.svg
 # filename.pdf
