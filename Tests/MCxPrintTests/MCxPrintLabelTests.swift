@@ -1,9 +1,8 @@
 import XCTest
 import class Foundation.Bundle
 
-final class MCxPrintLabelTests: XCTestCase {
+final class MCxPrintTests: XCTestCase {
     func testExample() throws {
-        // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
 
@@ -12,13 +11,15 @@ final class MCxPrintLabelTests: XCTestCase {
             return
         }
 
-        let fooBinary = productsDirectory.appendingPathComponent("MCxPrintLabel")
+        let executableUrl = productsDirectory.appendingPathComponent("MCxPrint")
 
         let process = Process()
-        process.executableURL = fooBinary
+        process.executableURL = executableUrl
 
         let pipe = Pipe()
         process.standardOutput = pipe
+        
+        
 
         try process.run()
         process.waitUntilExit()
@@ -26,7 +27,8 @@ final class MCxPrintLabelTests: XCTestCase {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
 
-        XCTAssertEqual(output, "Hello, world!\n")
+        //XCTAssertEqual(output, "Hello, world!\n")
+        XCTAssertEqual(process.terminationStatus, 0)
     }
 
     /// Returns path to the built products directory.

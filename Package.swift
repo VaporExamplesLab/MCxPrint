@@ -4,30 +4,30 @@
 import PackageDescription
 
 let package = Package(
-    name: "MCxPrintLabel",
+    name: "MCxPrint",
     // products: [
     //     // Products define the executables and libraries produced by a package, and make them visible to other packages.
     //     .library(
-    //         name: "MCxPrintLabelCore",
+    //         name: "MCxPrintCore",
     //         type: .static,
-    //         targets: ["MCxPrintLabelCore"]),
+    //         targets: ["MCxPrintCore"]),
     // ],
     dependencies: [
         // .package( url: " ", from: "1.0.0" )
-        .package( url: "git@gitlab.com.mepixtech:swift-lab/MCx/MCxLogger.git", .branch("master") )
+        // .package( url: " ", .branch("master") )
     ],
     targets: [
         .target(
-            name: "MCxPrintLabelCore",
-            dependencies: ["MCxLogger"]
+            name: "MCxPrintCore",
+            dependencies: []
         ),
         .target(
-            name: "MCxPrintLabel",
-            dependencies: ["MCxPrintLabelCore"]
+            name: "MCxPrint",
+            dependencies: ["MCxPrintCore"]
         ),
         .testTarget(
-            name: "MCxPrintLabelTests",
-            dependencies: ["MCxPrintLabelCore", "MCxLogger"]
+            name: "MCxPrintTests",
+            dependencies: ["MCxPrintCore"]
         ),
     ],
     swiftLanguageVersions: [.v4_2]

@@ -1,7 +1,7 @@
 import XCTest
 
-import MCxPrintLabelTests
+import MCxPrintTests
 
 var tests = [XCTestCaseEntry]()
-tests += MCxPrintLabelTests.allTests()
+tests += MCxPrintTests.allTests()
 XCTMain(tests)
