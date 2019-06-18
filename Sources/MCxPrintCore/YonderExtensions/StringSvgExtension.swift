@@ -12,6 +12,46 @@ import Foundation
 
 public extension String {
     
+    public mutating func svgAddCircle(
+        cx: Double, cy: Double, r: Double,
+        stroke: String? = nil,
+        strokeWidth: Double? = nil,   // default: 1.o
+        strokeOpacity: Double? = nil, // default: 1.0
+        fill: String? = nil,         //
+        fillOpacity: Double? = nil    // 0.0 if
+        ) {
+        svgAddCircle(
+            cx: CGFloat(cx),
+            cy: CGFloat(cy),
+            r: CGFloat(r),
+            stroke: stroke,
+            strokeWidth: strokeWidth != nil ? CGFloat(strokeWidth!) : nil,     // default: 1.0
+            strokeOpacity: strokeWidth != nil ? CGFloat(strokeOpacity!) : nil, // default: 1.0
+            fill: fill,                            //
+            fillOpacity: strokeWidth != nil ? CGFloat(fillOpacity!) : nil      // 0.0 if
+        )
+    }
+    
+    public mutating func svgAddCircle(
+        cx: Float, cy: Float, r: Float,
+        stroke: String? = nil,
+        strokeWidth: Float? = nil,   // default: 1.o
+        strokeOpacity: Float? = nil, // default: 1.0
+        fill: String? = nil,         //
+        fillOpacity: Float? = nil    // 0.0 if
+        ) {
+        svgAddCircle(
+            cx: CGFloat(cx),
+            cy: CGFloat(cy),
+            r: CGFloat(r),
+            stroke: stroke,
+            strokeWidth: strokeWidth != nil ? CGFloat(strokeWidth!) : nil,     // default: 1.0
+            strokeOpacity: strokeWidth != nil ? CGFloat(strokeOpacity!) : nil, // default: 1.0
+            fill: fill,                            //
+            fillOpacity: strokeWidth != nil ? CGFloat(fillOpacity!) : nil      // 0.0 if
+        )
+    }
+    
     /// \<circle /\>
     ///
     /// [see MDN \<circle\>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/circle)
@@ -28,10 +68,10 @@ public extension String {
     public mutating func svgAddCircle(
         cx: CGFloat, cy: CGFloat, r: CGFloat,
         stroke: String? = nil,
-        strokeWidth: Float? = nil, // default: 1.o
-        strokeOpacity: Float? = nil, // default: 1.0
-        fill: String? = nil, pixels //
-        fillOpacity: Float? = nil // 0.0 if
+        strokeWidth: CGFloat? = nil,   // default: 1.o
+        strokeOpacity: CGFloat? = nil, // default: 1.0
+        fill: String? = nil,          //
+        fillOpacity: CGFloat? = nil   // 0.0 if
         ) {
         
         var style = ""
@@ -124,10 +164,10 @@ public extension String {
     public mutating func svgAddRect(
         x: CGFloat, y: CGFloat, width w: CGFloat, height h: CGFloat,
         stroke: String? = nil,
-        strokeWidth: Float? = nil, // default: 1
-        strokeOpacity: Float? = nil, // default: 1.0
+        strokeWidth: CGFloat? = nil,   // default: 1.0
+        strokeOpacity: CGFloat? = nil, // default: 1.0
         fill: String? = nil,
-        fillOpacity: Float? = nil // 0.0 if
+        fillOpacity: CGFloat? = nil    // 0.0 if
         ) {
         
         var style = ""

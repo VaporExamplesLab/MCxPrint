@@ -10,10 +10,30 @@ import Foundation
 // migrate from TagFileRecord.swift
 public struct LibraryFileLabel: Codable {
     
-    // JSON
+    //"title" : "Wingding Everest Dialog Network",
+    let title: String
+    //"udcCall" : "004.52-•-MC-WEDN",
+    let udcCall: String
+    //"udcLabel" : "Generic Labels - SVG Layout Example",
+    let udcLabel: String
+    //"collectionID" : "ABCDEFgH",
+    let collectionID: String
+    //"collectionColor" : "green"
+    let collectionColor: String
     
+    
+    
+    // JSON
     func svg() -> String {
-        fatalError() // :NYI:
+        var s = ""
+        
+        //"title" : "Wingding Everest Dialog Network",
+        //"udcCall" : "004.52-•-MC-WEDN",
+        //"udcLabel" : "Generic Labels - SVG Layout Example",
+        //"collectionID" : "ABCDEFgH",
+        //"collectionColor" : "green"
+        
+        return s
     }
 }
 

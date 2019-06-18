@@ -15,12 +15,12 @@ public struct LibraryBookLabel: Codable {
         collectionSID: String,
         udcLabel: String
         ) -> String {
-        let wxhLandscape = PaperPointRect.ptouchLandscape
+        let wxhLandscape = PrintTemplate.PaperPointRect.ptouchLandscape
         //
         let ptsCallLeft: CGFloat = 46.0
         let ptsCallTop: CGFloat = 18.0 - 6.0
         let ptsFontLineHeight: CGFloat = 13.0
-        let ptsLabelHeight = PaperPointRect.ptouchLandscape.height
+        let ptsLabelHeight = PrintTemplate.PaperPointRect.ptouchLandscape.height
         //let ptsUdcLabelLeft: CGFloat = ptsCallLeft + 1.0 // :!!!:
         //let ptsUdcLabelTop: CGFloat = ptsCallTop
         

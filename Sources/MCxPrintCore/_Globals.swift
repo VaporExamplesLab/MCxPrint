@@ -10,7 +10,6 @@ import Foundation
 internal let scratchPath = "/var/spool/aknowtz_spool/scratch"
 internal let scratchUrl = URL(fileURLWithPath: scratchPath)
 
-
 ///////////////////////
 /// stdout & stderr ///
 ///////////////////////
