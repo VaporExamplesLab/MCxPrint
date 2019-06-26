@@ -10,22 +10,31 @@ import Foundation
 // migrate from TagBookRecord: Codable
 public struct LibraryBookLabel: Codable {
     
-    func svg(
-        call: String,
-        collectionSID: String,
-        udcLabel: String
-        ) -> String {
+    //"udcCall" : "004.52-•-MC-WEDN",
+    let udcCall: String
+    //"udcLabel" : "Generic Labels - SVG Layout Example",
+    let udcLabel: String
+    //"collectionSID" : "ABCDEFgH",
+    let collectionSID: String
+    
+    public init(udcCall: String, udcLabel: String, collectionSID: String, collectionColor: String) {
+        self.udcCall = udcCall
+        self.udcLabel = udcLabel
+        self.collectionSID = collectionSID
+    }
+    
+    public func svg() -> String {
         let wxhLandscape = PrintTemplate.PaperPointRect.ptouchLandscape
         //
         let ptsCallLeft: CGFloat = 46.0
         let ptsCallTop: CGFloat = 18.0 - 6.0
         let ptsFontLineHeight: CGFloat = 13.0
-        let ptsLabelHeight = PrintTemplate.PaperPointRect.ptouchLandscape.height
+        let ptsLabelHeight = wxhLandscape.height
         //let ptsUdcLabelLeft: CGFloat = ptsCallLeft + 1.0 // :!!!:
         //let ptsUdcLabelTop: CGFloat = ptsCallTop
         
         // udc-facet-author-title
-        let callParts = call.components(separatedBy: "-")
+        let callParts = udcCall.components(separatedBy: "-")
         let callUdc = callParts[0]
         let callFacet = callParts[1]
         let callAuthor = callParts[2]
@@ -101,53 +110,11 @@ public struct LibraryBookLabel: Codable {
         }
         
         // Collection String ID
-        s.svgAddRect(x: 0.0, y: 0.0, width: ptsFontLineHeight + 4.0, height: ptsLabelHeight, fill: "Black")
-        s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: "White")
+        s.svgAddRect(x: 0.0, y: 0.0, width: ptsFontLineHeight + 4.0, height: ptsLabelHeight, fill: "black")
+        s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: "white")
         
-        s.svgWrapTag(w: wxhLandscape.width, h: wxhLandscape.height)
-        s.htmlWrapMinimal()
+        s.svgWrapSvgTag(w: wxhLandscape.width, h: wxhLandscape.height, standalone: true)
         
-        print("PrintTemplate.generateTagBook()\n\(s)")
         return s
     }
-    
 }
-
- /* ********************************************
- {
- "version": "0.1.0",
- "labelBooks" : [
- {
- "type" : "book",
- "udcCall" : "004.52-•-MC-WEDN",
- "udcLabel" : "Generic Labels - SVG Layout Example",
- "collectionID" : "ABCDEFgH",
- "collectionColor" : "green"
- }
- ],
- "labelFiles" : [
- {
- "type" : "file",
- "title" : "Wingding Everest Dialog Network",
- "udcCall" : "004.52-•-MC-WEDN",
- "udcLabel" : "Generic Labels - SVG Layout Example",
- "collectionID" : "ABCDEFgH",
- "collectionColor" : "green"
- }
- ],
- "labelParts" : [
- {
- "type" : "part",
- "name" : "Resistor",
- "value": "100K",
- "description": "carbon"
- },
- {
- "type" : "part",
- "name" : "9DOF Sensor",
- "value": "Adafruit-12345",
- "description": "carbon"
- }
- ]
- }
- ******************************************** */

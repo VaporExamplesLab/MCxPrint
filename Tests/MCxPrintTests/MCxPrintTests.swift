@@ -1,6 +1,7 @@
 import XCTest
 import class Foundation.Bundle
 
+/// MCxPrintTests exercises the command line interface
 final class MCxPrintTests: XCTestCase {
     func testExample() throws {
         // Use XCTAssert and related functions to verify your tests produce the correct
@@ -31,6 +32,10 @@ final class MCxPrintTests: XCTestCase {
         XCTAssertEqual(process.terminationStatus, 0)
     }
 
+    func testBookLabel() {
+        
+    }
+    
     /// Returns path to the built products directory.
     var productsDirectory: URL {
       #if os(macOS)

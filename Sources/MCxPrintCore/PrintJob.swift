@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal struct PrintJob {
+public struct PrintJob {
     
     func svgToPdf(basename: String) {
         let workPath = scratchPath

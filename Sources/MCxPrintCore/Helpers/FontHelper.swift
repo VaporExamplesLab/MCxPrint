@@ -84,6 +84,9 @@ public struct FontHelper {
         case liberationNarrowBold = "LiberationSansNarrow-Bold"
         case liberationNarrowBoldItalic = "LiberationSansNarrow-BoldItalic"
         case liberationNarrowItalic = "LiberationSansNarrow-Italic"
+        
+        /// Microsoft Web Font: Impact
+        case mswImpact = "Impact"
 
     }
     
@@ -215,5 +218,15 @@ public struct FontHelper {
         return ctFont
     }
     
-    
+    // * DejaVu was the GNOME default.
+    // * Cantarell is the GNOME 3+ default.
+    //
+    // * Oxygen is a KDE font.
+    //
+    // *  Noto has broad multilingual support.
+    //
+    // * Liberation. Often installed with LibreOffice.
+    // * Croscore. Calibri and Cambria substitutes are available in Croscore Extra.
+    // * TeXGyre. Based on originals by URW.
+
 }

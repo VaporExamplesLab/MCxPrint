@@ -40,7 +40,7 @@ public struct CalibrationPage {
         
         s.append(middleSquare)
         
-        s.svgWrapTag(w: gcWidth, h: gcHeight)
+        s.svgWrapSvgTag(w: gcWidth, h: gcHeight)
         s.htmlWrapMinimal()
         
         print("• CalibrationPage svg()\n\(s)")

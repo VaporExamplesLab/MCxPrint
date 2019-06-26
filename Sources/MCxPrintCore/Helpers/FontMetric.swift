@@ -13,13 +13,18 @@ import Foundation
 ///
 /// `(N_points / em) / (glyph_units / em) = N_points / glyph_units`
 ///
-internal struct FontMetric {
+public struct FontMetric {
     
+    ///
+    let cgFontFamily: FontHelper.Name
+    ///
     let cgFont: CGFont
+    /// Font size in points.
     let cgFontSize: CGFloat
     private let ctFont: CTFont
     
     init(fontFamily: FontHelper.Name, fontSize: CGFloat) throws {
+        self.cgFontFamily = fontFamily
         self.cgFontSize = fontSize
         let cfsFontName: CFString = fontFamily.rawValue as CFString
         
@@ -85,7 +90,7 @@ internal struct FontMetric {
         // Result: font design metrics transformed into font space.
         let boundingBox = CTFontGetBoundingRectsForGlyphs(
             ctFont,         // font: CTFont
-            .horizontal,    // orientation: CFFontOrientation
+            .horizontal,    // orientation: CTFontOrientation default|horizontal|vertical
             glyphs,         // glyphs: UnsafePointer<CGGlyph>
             &boundingRects, // boundingRects: UnsafeMutablePointer<CGRect>?
             glyphsCount     // count: CFIndex
@@ -109,6 +114,87 @@ internal struct FontMetric {
         
         return glyphs
     }
+    
+    
+    /// see: https://stackoverflow.com/questions/18238804/osx-cgglyph-to-unichar
+    func createUnicodeFontMap() {
+        
+        // Get all characters of the font with CTFontCopyCharacterSet().
+        let cfCharacterSet: CFCharacterSet = CTFontCopyCharacterSet(ctFont)
+        //let nsCharacterSet = cfCharacterSet as NSCharacterSet
+        print("CFCharacterSet: \(cfCharacterSet)")
+        
+        let cfCharacterSetStr = "\(cfCharacterSet)"
+        
+        // Map all Unicode characters to corresponding glyphs
+        var unichars = [UniChar](cfCharacterSetStr.utf16)
+        var glyphs = [CGGlyph](repeating: 0, count: unichars.count)
+        guard CTFontGetGlyphsForCharacters(
+            ctFont, // font: CTFont
+            &unichars, // characters: UnsafePointer<UniChar>
+            &glyphs, // UnsafeMutablePointer<CGGlyph>
+            unichars.count // count: CFIndex
+            )
+            else {
+                return
+        }
+        
+        // For each Unicode character and its glyph, store the mapping glyph -> Unicode in a dictionary.
+    }
+    
+    func getGlyphWithMaxAscent() {
+        var maxAscent: CGFloat = 0.0
+        var resultGlyph = CGGlyph(0)
+        for i in 0 ..< cgFont.numberOfGlyphs {
+            let glyph = CGGlyph(i)
+            
+            let boundingBox = CTFontGetBoundingRectsForGlyphs(
+                ctFont,      // font: CTFont
+                .horizontal, // orientation: CTFontOrientation
+                [glyph],     // glyphs: UnsafePointer<CGGlyph>
+                nil,         // boundingRects: UnsafeMutablePointer<CGRect>?
+                1            // count: CFIndex
+            )
+            
+            let glyphTotalHeight = boundingBox.height
+            let glyphDescent = -boundingBox.origin.y
+            
+            if glyphTotalHeight - glyphDescent > maxAscent {
+                resultGlyph = glyph
+                maxAscent = glyphTotalHeight - glyphDescent
+            }
+            
+            let char: Character = "A"
+            
+            //cgFont.table(for: <#T##UInt32#>)
+            
+            //if let glyphNameCFStr = cgFont.name(for: cgGlyph) {
+            //    print("\(glyphNameCFStr)")
+            //    var glyphs = [CGGlyph](repeating: 0, count: 1)
+            //    var bboxes = [CGRect](repeating: CGRect(x: 0, y: 0, width: 0, height: 0), count: 1)
+            //    if cgFont.getGlyphBBoxes(
+            //        glyphs: &glyphs, // UnsafePointer<CGGlyph>
+            //        count: 1, // Int
+            //        bboxes: &bboxes // UnsafeMutablePointer<CGRect>
+            //        ) {
+            //        //if bboxes[0].height >  {
+            //        //    
+            //        //}
+            //    }
+            //    cgFont.getGlyphWithGlyphName(name: glyphNameCFStr)
+            //}
+
+            
+
+        }
+        
+        
+    }
+    
+    func getGlyphWithMaxDecent() {
+        
+    }
+    
     
     func getOpticalRects(string: String) -> (overall: CGRect, list: [CGRect])? {
         var unichars = [UniChar](string.utf16)
@@ -172,7 +258,7 @@ internal struct FontMetric {
     func italicAngle() -> CGFloat {
         return cgFont.italicAngle
     }
-
+    
     /// - Returns: glyph units/em
     func glyphUnitsPerEm() -> CGFloat {
         return CGFloat(cgFont.unitsPerEm)
@@ -236,6 +322,61 @@ internal struct FontMetric {
         print("   type1: \(cgFont.canCreatePostScriptSubset(CGFontPostScriptFormat.type1))")
         print("   type3: \(cgFont.canCreatePostScriptSubset(CGFontPostScriptFormat.type3))")
         print("  type42: \(cgFont.canCreatePostScriptSubset(CGFontPostScriptFormat.type42))")
+    }
+    
+    
+    func wordwrap(string: String, bounds: CGSize) -> [String] {
+        let wordList = string.components(separatedBy: .whitespacesAndNewlines)
+        var result: [String] = [""]
+        
+        guard let spaceWidth = getAdvances(string: " ")?.width
+            else { return [string] }
+        
+        var i = 0
+        var firstLineWord = true
+        for word in wordList {
+            guard let lineWidth = getAdvances(string: result[i])?.width
+                else { return [string] }
+            guard let wordWidth = getAdvances(string: word)?.width
+                else { return [string] }
+            if (lineWidth + spaceWidth + wordWidth) > bounds.width {
+                result.append("")
+                i = i + 1
+                firstLineWord = true
+            }
+            if firstLineWord {
+                result[i].append(word)
+                firstLineWord = false
+            }
+            else {
+                result[i].append(word)
+            }
+        }
+        
+        return result
+    }
+    
+    // MARK: - Glyph Space
+    
+    /// Provides glyph names. `from` and `to` are range checked.
+    ///
+    /// - Returns: names in range CGGlyph(from) ..< CGGlyph(to) or `nil` if range check fails.
+    func gyphNames(fromIdx: Int, toIdx: Int) -> [String]? {
+        guard fromIdx >= 0, 
+            toIdx <= cgFont.numberOfGlyphs,
+            fromIdx < toIdx
+        else {
+            return nil
+        }
+        var result = [String]()
+        
+        for i in fromIdx ..< toIdx {
+            let cgGlyph = CGGlyph(i)
+            if let glyphNameCFStr = cgFont.name(for: cgGlyph) {
+                result.append("\(glyphNameCFStr)")
+            }
+        }
+        return result
     }
     
 }

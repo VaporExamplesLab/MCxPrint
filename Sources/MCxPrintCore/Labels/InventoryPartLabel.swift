@@ -7,21 +7,23 @@
 
 import Foundation
 
-// Migrate from TagPartRecord.swift
-
-/* ********************************************
- [
- {
- "type" : "part",
- "name" : "Resistor",
- "value": "100K",
- "description": "carbon"
- },
- {
- "type" : "part",
- "name" : "9DOF Sensor",
- "value": "Adafruit-12345",
- "description": "carbon"
- }
- ]
- ******************************************** */
+/// Migrate from TagPartRecord.swift
+public struct InventoryPartLabel: Codable {
+    //"name" : "Resistor", "9DOF Sensor"
+    let name: String
+    //"value": "100K", "Adafruit-12345"
+    let value: String
+    //"description": "carbon", "…"
+    let description: String
+    
+    public init(name: String, value: String, description: String) {
+        self.name = name
+        self.value = value
+        self.description = description
+    }
+    
+    func svg() -> String {
+        return ""
+    }
+    
+}

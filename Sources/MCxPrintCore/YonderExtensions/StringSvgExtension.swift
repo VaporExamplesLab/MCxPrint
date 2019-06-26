@@ -12,10 +12,14 @@ import Foundation
 
 public extension String {
     
+    public mutating func svgAdd(svg: String) {
+        self.append(svg + "\n")
+    }
+    
     public mutating func svgAddCircle(
         cx: Double, cy: Double, r: Double,
         stroke: String? = nil,
-        strokeWidth: Double? = nil,   // default: 1.o
+        strokeWidth: Double? = nil,   // default: 1.0
         strokeOpacity: Double? = nil, // default: 1.0
         fill: String? = nil,         //
         fillOpacity: Double? = nil    // 0.0 if
@@ -231,12 +235,13 @@ public extension String {
         text: String,
         x: CGFloat,
         y: CGFloat,
-        fill: String = "rgb(0, 0, 0)",
+        fill: String = "#000000",
         fontFamily: FontHelper.Name = FontHelper.Name.dejaVuMono,
         fontSize: CGFloat = 12.0,
         textAnchor: String = "start"
         ) {
         
+        let textEncoded = text.filteringToSvgAscii()
         var tagBefore = ""
         var tagAfter = ""
         
@@ -254,7 +259,7 @@ public extension String {
         
         tagAfter.append("</text>\n")
         
-        self.append(tagBefore + text + tagAfter)
+        self.append(tagBefore + textEncoded + tagAfter)
     }
     
     /// svgAddText \<text x="150" y="125" font-size="60" text-anchor="middle" fill="white"\>SVG\</text\>
@@ -279,24 +284,30 @@ public extension String {
         x: CGFloat,
         y: CGFloat,
         rotate: CGFloat,
-        fill: String = "rgb(0, 0, 0)",
-        fontStyles: [String] = CssFontStyle.dejaVuSansMono12
+        fill: String = "#000000",
+        fontFamily: FontHelper.Name = FontHelper.Name.mswImpact,
+        fontSize: CGFloat = 12.0,
+        textAnchor: String = "start"
         ) {
         
         var tagBefore = ""
         var tagAfter = ""
+        let textEncoded = text.filteringToSvgAscii()
         
         tagBefore.append("<text ")
         tagBefore.append("transform=\"translate(\(x) \(y)) rotate(\(rotate))\" ")
         tagBefore.append("fill=\"\(fill)\" ")
-        for style in fontStyles {
-            tagBefore.append(style + " ")
-        }
+        
+        tagBefore.append("font-family=\"\(fontFamily.rawValue)\" ")
+        tagBefore.append("font-size=\"\(fontSize)\" ")
+        
+        tagBefore.append("text-anchor=\"\(textAnchor)\" ")
+
         tagBefore.append(">")
         
         tagAfter.append("</text>\n")
         
-        self.append(tagBefore + text + tagAfter)
+        self.append(tagBefore + textEncoded + tagAfter)
     }
     
     // func svgTextBox ... remove spaces.
@@ -307,11 +318,48 @@ public extension String {
     //    <tspan x="100%" dy="35">tspan line 3</tspan>
     //    </text>
     //    </svg>
+    public mutating func svgAddTextBox(
+        text: String,
+        font: FontMetric,
+        fontLineHeight: CGFloat,
+        bounds: CGSize,
+        position: CGPoint,
+        framed: Bool = false
+        ) {
+        let textWrapped = font.wordwrap(string: text, bounds: bounds)
+        
+        var s = ""
+        var y = font.ascent()
+        for line in textWrapped {
+            if y + font.decent() < bounds.height {
+                s.svgAddText(text: line, x: 0, y: y)
+            }
+            else {
+                break
+            }
+            y = y + font.cgFontSize
+            
+        }
+    
+        // group
+        s.svgWrapGroup(translate: (position.x, position.y))
+        
+        if framed {
+            s.svgAddRect(
+                x: position.x, y: position.y, 
+                width: bounds.width, height: bounds.height, 
+                stroke: "black")
+        }
+        
+        self.append(s)
+    }
+    
     
     /// \<g >…\<g\>
     ///
-    /// [see MDN \<g\>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)
-    ///
+    /// **See Also**
+    /// * [MDN \<g\>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)
+    /// * [MDN transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform)
     public mutating func svgWrapGroup(
         translate: (x: CGFloat, y: CGFloat)?
         ) {
@@ -335,7 +383,7 @@ public extension String {
     ///     - w: width pixels
     ///     - h: height pixels
     ///     - standalone: true to include standalone file format header
-    public mutating func svgWrapTag(w: CGFloat, h: CGFloat, standalone: Bool = false) {
+    public mutating func svgWrapSvgTag(w: CGFloat, h: CGFloat, standalone: Bool = false) {
         var beginTag = ""
 
         if standalone {
@@ -351,7 +399,7 @@ public extension String {
         self.append("</svg>\n")
     }
     
-    public mutating func svgWrapTag(wPercent w: CGFloat, hPercent h: CGFloat, standalone: Bool = false) {
+    public mutating func svgWrapSvgTag(wPercent w: CGFloat, hPercent h: CGFloat, standalone: Bool = false) {
         var beginTag = ""
 
         if standalone {

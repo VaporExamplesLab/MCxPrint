@@ -21,6 +21,8 @@ Add HTML wrapper possible approaches:
 * --output=html        #
 * output_filename.html #
 
+Note: uses NO-BREAK SPACE U+00A0 UTF8: C2A0 for visual alignment.
+
 ## Typography
 
 **CGFont.h**
