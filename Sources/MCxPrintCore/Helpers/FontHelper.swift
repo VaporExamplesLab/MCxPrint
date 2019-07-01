@@ -20,7 +20,7 @@ public struct FontHelper {
     ///
     /// Regex: find: `(^.*$)` replace: case `$1 = "$1"`
     ///
-    public enum Name: String {
+    public enum PostscriptName: String {
         /// DejaVu Condensed Mono
         case dejaVuCondensed = "DejaVuSansCondensed"
         case dejaVuCondensedBold = "DejaVuSansCondensed-Bold"
@@ -61,10 +61,13 @@ public struct FontHelper {
         // https://github.com/liberationfonts/liberation-fonts/releases
         // https://github.com/liberationfonts/liberation-sans-narrow/releases
 
-        /// Liberation Mono (Courier New metric)
+        /// Liberation Mono monospace (Courier New metric)
         case liberationMono = "LiberationMono"
+        /// Liberation Mono Bold monospace (Courier New metric)
         case liberationMonoBold = "LiberationMono-Bold"
+        /// Liberation Mono Bold Italic monospace (Courier New metric)
         case liberationMonoBoldItalic = "LiberationMono-BoldItalic"
+        /// Liberation Italic monospace (Courier New metric)
         case liberationMonoItalic = "LiberationMono-Italic"
         
         /// Liberation Sans Arial Metric
@@ -87,7 +90,16 @@ public struct FontHelper {
         
         /// Microsoft Web Font: Impact
         case mswImpact = "Impact"
-
+        
+        /// Gauge small caps.
+        ///
+        /// **See Also** 
+        /// [FontLibrary: Gauge ⇗](https://fontlibrary.org/en/font/gauge)
+        case gaugeRegular = "Gauge-Regular"
+        /// Gauge small caps italics.
+        case gaugeOblique = "Gauge-Oblique"
+        /// Gauge small caps bold.
+        case gaugeHeavy = "Gauge-Heavy"
     }
     
     /// Fonts specific to Apple installations
@@ -198,10 +210,11 @@ public struct FontHelper {
         
         case noteworthyLight = "Noteworthy Light"
         case noteworthyBold = "Noteworthy Bold"
+        
     }
     
     /// Use either the font's PostScript name or full name
-    static func getCTFont(font: FontHelper.Name, fontsize: CGFloat) -> CTFont? {
+    static func getCTFont(font: FontHelper.PostscriptName, fontsize: CGFloat) -> CTFont? {
         let cfsFontName: CFString = font.rawValue as CFString
         
         guard let cgFont = CGFont(cfsFontName) else {

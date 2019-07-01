@@ -236,7 +236,7 @@ public extension String {
         x: CGFloat,
         y: CGFloat,
         fill: String = "#000000",
-        fontFamily: FontHelper.Name = FontHelper.Name.dejaVuMono,
+        fontFamily: FontHelper.PostscriptName = FontHelper.PostscriptName.dejaVuMono,
         fontSize: CGFloat = 12.0,
         textAnchor: String = "start"
         ) {
@@ -285,7 +285,7 @@ public extension String {
         y: CGFloat,
         rotate: CGFloat,
         fill: String = "#000000",
-        fontFamily: FontHelper.Name = FontHelper.Name.mswImpact,
+        fontFamily: FontHelper.PostscriptName = FontHelper.PostscriptName.mswImpact,
         fontSize: CGFloat = 12.0,
         textAnchor: String = "start"
         ) {
@@ -320,7 +320,7 @@ public extension String {
     //    </svg>
     public mutating func svgAddTextBox(
         text: String,
-        font: FontMetric,
+        font: FontMetricExtractor,
         fontLineHeight: CGFloat,
         bounds: CGSize,
         position: CGPoint,

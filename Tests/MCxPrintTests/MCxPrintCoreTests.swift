@@ -74,7 +74,7 @@ class MCxPrintCoreTests: XCTestCase {
         printJob.svgToPdf(basename: "BookBTest")
     }
     
-    func testFontMetrics() {
+    func testFontMetricsPage() {
         // ------------------
         // -- Font Metrics --
         let fontMetricsPage = FontMetricsPage()
@@ -86,11 +86,13 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testCreateUnicodeFontMap() {
-        let fontFamily  = FontHelper.Name.dejaVuCondensed
+        let fontFamily  = FontHelper.PostscriptName.dejaVuCondensed
         let fontSize: CGFloat = 12.0
-        let font = try! FontMetric(fontFamily: fontFamily, fontSize: fontSize)
+        let font = try! FontMetricExtractor(fontFamily: fontFamily, fontSize: fontSize)
         
-        font.createUnicodeFontMap()
+        let dictionary: [CGGlyph : UnicodeScalar] = font.createGlyphToUnicodeMap()
+        
+        print("dictionary.count = \(dictionary.count)")
     }
     
     func testLibraryFilePage() {

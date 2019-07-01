@@ -103,7 +103,7 @@ public struct LibraryBookLabel: Codable {
                 text: line,
                 x: ptsUdcLeft,
                 y: ptsCallTop + lineNo * ptsFontLineHeight,
-                fontFamily: FontHelper.Name.liberationNarrow,
+                fontFamily: FontHelper.PostscriptName.liberationNarrow,
                 fontSize: 12.0,
                 textAnchor: "end")
             lineNo = lineNo + 1.0

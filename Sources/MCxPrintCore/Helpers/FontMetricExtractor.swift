@@ -1,11 +1,13 @@
 //
-//  FontMetric.swift
+//  FontMetricExtractor.swift
 //  MCxPrintCore
 //
 //  Created by marc on 2019.06.17.
 //
 
 import Foundation
+import CoreGraphics
+import CoreText
 
 /// Provides metrics for a specific font.
 ///
@@ -13,17 +15,17 @@ import Foundation
 ///
 /// `(N_points / em) / (glyph_units / em) = N_points / glyph_units`
 ///
-public struct FontMetric {
+public struct FontMetricExtractor {
     
     ///
-    let cgFontFamily: FontHelper.Name
+    let cgFontFamily: FontHelper.PostscriptName
     ///
     let cgFont: CGFont
     /// Font size in points.
     let cgFontSize: CGFloat
     private let ctFont: CTFont
     
-    init(fontFamily: FontHelper.Name, fontSize: CGFloat) throws {
+    init(fontFamily: FontHelper.PostscriptName, fontSize: CGFloat) throws {
         self.cgFontFamily = fontFamily
         self.cgFontSize = fontSize
         let cfsFontName: CFString = fontFamily.rawValue as CFString
@@ -45,8 +47,10 @@ public struct FontMetric {
     
     /// - Returns: font space values
     func getAdvances(string: String) -> (width: CGFloat, sizes: [CGSize])? {
+        //let string = filterToExisting(string)
         var unichars = [UniChar](string.utf16)
         var glyphs = [CGGlyph](repeating: 0, count: unichars.count)
+        
         
         guard CTFontGetGlyphsForCharacters(
             ctFont, // font: CTFont
@@ -115,31 +119,37 @@ public struct FontMetric {
         return glyphs
     }
     
-    
-    /// see: https://stackoverflow.com/questions/18238804/osx-cgglyph-to-unichar
-    func createUnicodeFontMap() {
+    func createGlyphToUnicodeMap() ->  [CGGlyph : UnicodeScalar] {
         
         // Get all characters of the font with CTFontCopyCharacterSet().
-        let cfCharacterSet: CFCharacterSet = CTFontCopyCharacterSet(ctFont)
-        //let nsCharacterSet = cfCharacterSet as NSCharacterSet
-        print("CFCharacterSet: \(cfCharacterSet)")
+        let charset = CTFontCopyCharacterSet(ctFont) as CharacterSet
         
-        let cfCharacterSetStr = "\(cfCharacterSet)"
+        var glyphToUnicode = [CGGlyph : UnicodeScalar]() // Start with empty map.
         
-        // Map all Unicode characters to corresponding glyphs
-        var unichars = [UniChar](cfCharacterSetStr.utf16)
-        var glyphs = [CGGlyph](repeating: 0, count: unichars.count)
-        guard CTFontGetGlyphsForCharacters(
-            ctFont, // font: CTFont
-            &unichars, // characters: UnsafePointer<UniChar>
-            &glyphs, // UnsafeMutablePointer<CGGlyph>
-            unichars.count // count: CFIndex
-            )
-            else {
-                return
+        // Enumerate all Unicode scalar values from the character set:
+        for plane: UInt8 in 0...16 where charset.hasMember(inPlane: plane) {
+            for unicode in UTF32Char(plane) << 16 ..< UTF32Char(plane + 1) << 16 {
+                if let unicodeScalar = UnicodeScalar(unicode), charset.contains(unicodeScalar) {
+                    
+                    // Get glyph for this `uniChar` ...
+                    // let unichar16 = [UniChar](unicodeScalar.utf16)
+                    let unichar16: [UTF16.CodeUnit] = Array(unicodeScalar.utf16)
+                    var glyphs = [CGGlyph](repeating: 0, count: unichar16.count)
+                    
+                    if CTFontGetGlyphsForCharacters(
+                        ctFont,         // font: CTFont
+                        unichar16,      // characters: UnsafePointer<UniChar>
+                        &glyphs,        // UnsafeMutablePointer<CGGlyph>
+                        unichar16.count // count: CFIndex
+                        ) {
+                        // ... and add it to the map.
+                        glyphToUnicode[glyphs[0]] = unicodeScalar
+                    }
+                }
+            }
         }
         
-        // For each Unicode character and its glyph, store the mapping glyph -> Unicode in a dictionary.
+        return glyphToUnicode
     }
     
     func getGlyphWithMaxAscent() {
@@ -357,6 +367,24 @@ public struct FontMetric {
     }
     
     // MARK: - Glyph Space
+    
+//    func filterToExisting(_ text: String) -> String {
+//        var result = ""        
+//        for character in text {
+//            let string = "\(character)"
+//            let cfString = string as CFString
+//            // table tag
+//            // CoreText `cmap` - character id to glyph id mapping
+//            cmapFontTableTag
+//            // CoreText `fdsc` table - font descriptor
+//            descriptorFontTableTag
+//            cgFont.table(for: <#T##UInt32#>)
+//            let cgGlyph = cgFont.getGlyphWithGlyphName(name: cfString)
+//            let hexcode = String(format: "%04x", string.utf16.first!)
+//            print("cgGlyph = \(cgGlyph) ... \(cfString) ... \(hexcode)")
+//        }
+//        return result
+//    }
     
     /// Provides glyph names. `from` and `to` are range checked.
     ///

@@ -9,19 +9,21 @@ import Foundation
 
 public struct FontMetricsPage {
     // Key Independent Parameters
-    let fontFamily  = FontHelper.Name.dejaVuCondensed
+    // PASS: .dejaVuCondensed 
+    // FAIL: .mswImpact .gaugeRegular
+    let fontFamily  = FontHelper.PostscriptName.gaugeRegular
     /// Font Size: Points Per Em
     let fontSize: CGFloat = 48.0
     
     // Secondary Values
     let lineWidth: CGFloat = 0.25
     // Derived Values
-    let font: FontMetric
+    let font: FontMetricExtractor
     let page: CGRect = PrintTemplate.PaperPointRect.letter
     let oneInch: CGFloat = 72.0
     
     public init() {
-        self.font = try! FontMetric(fontFamily: fontFamily, fontSize: fontSize)
+        self.font = try! FontMetricExtractor(fontFamily: fontFamily, fontSize: fontSize)
     }
     
     public func svg() -> String {
@@ -167,38 +169,38 @@ public struct FontMetricsPage {
         s.svgAddText(
             text: "         ascent  \(font.ascent()) max above baseline", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
             text: "      capHeight  \(font.capHeight())", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
             text: "         decent \(font.decent()) max below baseline", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0 + 16.0
         s.svgAddText(
             text: "FontSize   \(fontSize)       Points/Em     \(fontFamily.rawValue)", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
             text: "         \(font.glyphUnitsPerEm())       GlyphUnits/Em", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
             text: "            \(font.pointsPerGlyphUnits()) Points/GlyphUnits", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         infoY = infoY + 16.0
         s.svgAddText(
             text: " leading \(font.leading())", 
             x: infoX, y: infoY, 
-            fontFamily: FontHelper.Name.dejaVuMono, fontSize: 12.0)
+            fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         
         s.svgWrapSvgTag(w: page.width, h: page.height, standalone: true)

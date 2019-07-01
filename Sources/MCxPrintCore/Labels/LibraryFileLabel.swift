@@ -48,7 +48,7 @@ public struct LibraryFileLabel: Codable {
         
         // Collection String ID
         //s.svgAddRect(x: 0.0, y: 0.0, width: ptsCollectionWidth, height: ptsLabelRect.height, fill: colors.bFill)
-        //s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: colors.bFont, fontFamily: FontHelper.Name.mswImpact)
+        //s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: colors.bFont, fontFamily: FontHelper.PostscriptName.mswImpact)
         //
         //if framed {
         //    s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: "black")
@@ -60,7 +60,10 @@ public struct LibraryFileLabel: Codable {
         
         // Call Number
         //s.svgAddText(text: udcCall, x: ptsInsetX, y: ptsCallNumberY, fill: colors.aFont)
-        let fontCallNumber = try! FontMetric(fontFamily: .dejaVuMonoBold, fontSize: 12.0)
+        let fontCallNumber = try! FontMetricExtractor(
+            // fontFamily: FontHelper.PostscriptName.gaugeHeavy, 
+            fontFamily: FontHelper.PostscriptName.mswImpact, 
+            fontSize: 12.0)
         s.svgAddTextBox(
             text: udcCall,
             font: fontCallNumber,
