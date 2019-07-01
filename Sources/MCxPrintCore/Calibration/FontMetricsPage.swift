@@ -18,34 +18,34 @@ public struct FontMetricsPage {
     // Secondary Values
     let lineWidth: CGFloat = 0.25
     // Derived Values
-    let font: FontMetricExtractor
+    let font: FontPointFamilyMetrics
     let page: CGRect = PrintTemplate.PaperPointRect.letter
     let oneInch: CGFloat = 72.0
     
     public init() {
-        self.font = try! FontMetricExtractor(fontFamily: fontFamily, fontSize: fontSize)
+        self.font = FontPointFamilyMetrics.fileLoad(fontFamily: fontFamily, fontSize: fontSize)!
     }
     
     public func svg() -> String {
-        font.getGlyphWithMaxAscent()
+        font.maxAscentCharacter()
         
         let baselineX = 0.15 * page.width
         let baselineY = 0.20 * page.height
-        let ascentY = baselineY - font.ascent()
-        let decentY = baselineY - font.decent()
+        let ascentY = baselineY - font.ptsAscent
+        let decentY = baselineY - font.ptsDescent
         
         var s = ""
         s = addPageRegistration(s)
         
         let text = "MQ.01Ofj⌘"
-        font.showCharacters(string: text)
+        font.toValues(string: text)
         
         ////////////////////
         // Show Advances //
         ///////////////////
         
         // Text String
-        s.svgAddText(text: text, x: baselineX, y: baselineY, fontFamily: font.cgFontFamily, fontSize: font.cgFontSize)
+        s.svgAddText(text: text, x: baselineX, y: baselineY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
         // text advances
         guard let advances = font.getAdvances(string: text) 
@@ -57,20 +57,16 @@ public struct FontMetricsPage {
         let advancesList: [CGSize] = advances.sizes
         for size in advancesList {
             s.svgAddLine(
-                x1: x, y1: baselineY - font.ascent(),
-                x2: x, y2: baselineY - font.decent())
+                x1: x, y1: baselineY - font.ptsAscent,
+                x2: x, y2: baselineY - font.ptsDescent)
             x = x + size.width
         }
         s.svgAddLine(
-            x1: x, y1: baselineY - font.ascent(),
-            x2: x, y2: baselineY - font.decent())
+            x1: x, y1: baselineY - font.ptsAscent,
+            x2: x, y2: baselineY - font.ptsDescent)
         
-        if let psName = font.cgFont.postScriptName {
-            print("postScriptName: \(psName)")
-        }
-        else {
-            print("postScriptName: NOT_FOUND")
-        }
+        let psName = font.fontFamily
+        print("postScriptName: \(psName)")
         
         // text origin line
         s.svgAddLine(x1: 0, y1: baselineY, x2: page.width, y2: baselineY, strokeWidth: 0.25, stroke: "red")
@@ -87,7 +83,7 @@ public struct FontMetricsPage {
         
         let boundsOriginY: CGFloat = baselineY + 76.0
         // Text String
-        s.svgAddText(text: text, x: baselineX, y: boundsOriginY, fontFamily: font.cgFontFamily, fontSize: font.cgFontSize)
+        s.svgAddText(text: text, x: baselineX, y: boundsOriginY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
         guard let bounds = font.getBoundingRects(string: text) 
             else {
@@ -120,8 +116,8 @@ public struct FontMetricsPage {
         ///////////////////
         
         let opticalsY = boundsOriginY + 76.0
-        let opticalAscentY = opticalsY - font.ascent()
-        let opticalDecentY = opticalsY - font.decent()
+        let opticalAscentY = opticalsY - font.ptsAscent
+        let opticalDecentY = opticalsY - font.ptsDescent
         
         // text origin line
         s.svgAddLine(x1: 0, y1: opticalsY, x2: page.width, y2: opticalsY, strokeWidth: 0.25, stroke: "red")
@@ -134,7 +130,7 @@ public struct FontMetricsPage {
 
         
         // Text String
-        s.svgAddText(text: text, x: baselineX, y: opticalsY, fontFamily: font.cgFontFamily, fontSize: font.cgFontSize)
+        s.svgAddText(text: text, x: baselineX, y: opticalsY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
         guard let opticals = font.getOpticalRects(string: text) 
             else {
@@ -150,7 +146,7 @@ public struct FontMetricsPage {
             let opticalsRect = opticalsList[i]
             s.svgAddRect(
                 x: opticalsX + opticalsRect.origin.x, // origin.x expected to be zero. 
-                y: opticalsY - font.ascent(), 
+                y: opticalsY - font.ptsAscent, 
                 width: opticalsRect.width, 
                 height: opticalsRect.height, 
                 stroke: "blue", strokeWidth: 0.25
@@ -167,17 +163,17 @@ public struct FontMetricsPage {
         var infoY = 0.72 * page.height
         // uses NO-BREAK SPACE ` ` U+00A0 UTF8: C2A0 for visual alignment
         s.svgAddText(
-            text: "         ascent  \(font.ascent()) max above baseline", 
+            text: "         ptsAscent  \(font.ptsAscent) max above baseline", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "      capHeight  \(font.capHeight())", 
+            text: "      capHeight  \(font.ptsCapHeight)", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "         decent \(font.decent()) max below baseline", 
+            text: "         decent \(font.ptsDescent) max below baseline", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0 + 16.0
@@ -187,18 +183,18 @@ public struct FontMetricsPage {
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "         \(font.glyphUnitsPerEm())       GlyphUnits/Em", 
+            text: "         \(font.glyphUnitsPerEm)       GlyphUnits/Em", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "            \(font.pointsPerGlyphUnits()) Points/GlyphUnits", 
+            text: "            \(font.ptsPerGlyphUnits) Points/GlyphUnits", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         infoY = infoY + 16.0
         s.svgAddText(
-            text: " leading \(font.leading())", 
+            text: " ptsLeading \(font.ptsLeading)", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0

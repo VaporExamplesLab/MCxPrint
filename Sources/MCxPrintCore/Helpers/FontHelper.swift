@@ -20,7 +20,7 @@ public struct FontHelper {
     ///
     /// Regex: find: `(^.*$)` replace: case `$1 = "$1"`
     ///
-    public enum PostscriptName: String {
+    public enum PostscriptName: String, Codable {
         /// DejaVu Condensed Mono
         case dejaVuCondensed = "DejaVuSansCondensed"
         case dejaVuCondensedBold = "DejaVuSansCondensed-Bold"

@@ -60,10 +60,11 @@ public struct LibraryFileLabel: Codable {
         
         // Call Number
         //s.svgAddText(text: udcCall, x: ptsInsetX, y: ptsCallNumberY, fill: colors.aFont)
-        let fontCallNumber = try! FontMetricExtractor(
-            // fontFamily: FontHelper.PostscriptName.gaugeHeavy, 
-            fontFamily: FontHelper.PostscriptName.mswImpact, 
-            fontSize: 12.0)
+        
+        // FontHelper.PostscriptName.mswImpact | FontHelper.PostscriptName.mswImpact
+        guard let fontCallNumber = FontPointFamilyMetrics.fileLoad(fontFamily: FontHelper.PostscriptName.gaugeHeavy, fontSize: 12.0)
+            else { return "FONT NOT FOUND" }
+
         s.svgAddTextBox(
             text: udcCall,
             font: fontCallNumber,

@@ -88,7 +88,7 @@ class MCxPrintCoreTests: XCTestCase {
     func testCreateUnicodeFontMap() {
         let fontFamily  = FontHelper.PostscriptName.dejaVuCondensed
         let fontSize: CGFloat = 12.0
-        let font = try! FontMetricExtractor(fontFamily: fontFamily, fontSize: fontSize)
+        let font = try! FontPointMetrics(fontFamily: fontFamily, fontSize: fontSize)
         
         let dictionary: [CGGlyph : UnicodeScalar] = font.createGlyphToUnicodeMap()
         

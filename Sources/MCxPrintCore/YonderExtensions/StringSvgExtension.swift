@@ -320,7 +320,7 @@ public extension String {
     //    </svg>
     public mutating func svgAddTextBox(
         text: String,
-        font: FontMetricExtractor,
+        font: FontPointFamilyMetrics,
         fontLineHeight: CGFloat,
         bounds: CGSize,
         position: CGPoint,
@@ -329,15 +329,15 @@ public extension String {
         let textWrapped = font.wordwrap(string: text, bounds: bounds)
         
         var s = ""
-        var y = font.ascent()
+        var y = font.ptsAscent
         for line in textWrapped {
-            if y + font.decent() < bounds.height {
+            if y + font.ptsDescent < bounds.height {
                 s.svgAddText(text: line, x: 0, y: y)
             }
             else {
                 break
             }
-            y = y + font.cgFontSize
+            y = y + font.fontSize
             
         }
     
