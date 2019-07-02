@@ -187,12 +187,23 @@ class MCxPrintCoreTests: XCTestCase {
         
     }
     
-    
     func testPerformanceExample() {
         // This is an example of a performance test case.
         self.measure {
             // Put the code you want to measure the time of here.
         }
     }
+    
+    static var allTests = [
+        ("testExample", testExample),
+        ("testInventoryPartLabel", testInventoryPartLabel),
+        ("testLibraryBookLabel", testLibraryBookLabel),
+        ("testFontMetricsPage", testFontMetricsPage),
+        ("testCreateUnicodeFontMap", testCreateUnicodeFontMap),
+        ("testLibraryFilePage", testLibraryFilePage),
+        ("testStringEncoding", testStringEncoding),
+        ("testLabelJson", testLabelJson),
+        ("testPerformanceExample", testPerformanceExample)
+    ]
 
 }

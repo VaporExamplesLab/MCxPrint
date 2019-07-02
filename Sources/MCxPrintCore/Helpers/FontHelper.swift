@@ -213,24 +213,6 @@ public struct FontHelper {
         
     }
     
-    /// Use either the font's PostScript name or full name
-    static func getCTFont(font: FontHelper.PostscriptName, fontsize: CGFloat) -> CTFont? {
-        let cfsFontName: CFString = font.rawValue as CFString
-        
-        guard let cgFont = CGFont(cfsFontName) else {
-            return nil
-        }
-        
-        let ctFont: CTFont = CTFontCreateWithGraphicsFont(
-            cgFont,   // graphicsFont: CGFont
-            fontsize, // size: CGFloat. 0.0 defaults to 12.0
-            nil,      // matrix: UnsafePointer<CGAffineTransforms>?
-            nil       // attributes: CTFontDescriptor?
-        )
-        
-        return ctFont
-    }
-    
     // * DejaVu was the GNOME default.
     // * Cantarell is the GNOME 3+ default.
     //

@@ -29,7 +29,7 @@ public struct FontPointMetrics: Codable {
 
         var utf16HexStr = ""
         var notFirst = false
-        for utf16Char: UTF16Char in characterStr.utf16 { // UInt16
+        for utf16Char: UInt16 in characterStr.utf16 { // UTF16Char
             if notFirst {
                 utf16HexStr.append(" ")
             }
@@ -47,7 +47,7 @@ public struct FontPointMetrics: Codable {
 
     func toUtf8Hex() -> String {
         var utf8HexStr = "UTF-8"
-        for utf8Char: UTF8Char in _character.utf8 { // UInt8
+        for utf8Char: UInt8 in _character.utf8 { // UTF8Char
             let hexcode = String(format: "%04x", utf8Char)
             utf8HexStr.append(" \(hexcode)")
         }
@@ -57,7 +57,7 @@ public struct FontPointMetrics: Codable {
     func toUtf16Hex() -> String {
         var utf16HexStr = ""
         var notFirst = false
-        for utf16Char: UTF16Char in _character.utf16 { // UInt16
+        for utf16Char: UInt16 in _character.utf16 { // UTF16Char
             if notFirst {
                 utf16HexStr.append(" ")
             }

@@ -33,10 +33,6 @@ final class MCxPrintTests: XCTestCase {
         //XCTAssertEqual(output, "Hello, world!\n")
         XCTAssertEqual(process.terminationStatus, 0)
     }
-
-    func testBookLabel() {
-        
-    }
     
     /// Returns path to the built products directory.
     var productsDirectory: URL {
@@ -51,6 +47,6 @@ final class MCxPrintTests: XCTestCase {
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testExample", testExample)
     ]
 }

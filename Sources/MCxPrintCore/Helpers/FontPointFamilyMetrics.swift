@@ -39,7 +39,7 @@ public struct FontPointFamilyMetrics: Codable {
     
     /// * string.unicodeScalars, utf32: Unicode.Scalar, utf32.value, UTF32Char, UInt32. 
     /// * UTF-8 and UTF-16 are variable length. So, fixed length UTF-32 is used.
-    public let lookup: [UTF32Char: FontPointMetrics]
+    public let lookup: [UInt32: FontPointMetrics] // UTF32Char
     
     init(
         fontFamily: FontHelper.PostscriptName, 
@@ -50,7 +50,7 @@ public struct FontPointFamilyMetrics: Codable {
         ptsCapHeight: CGFloat,
         glyphUnitsPerEm: CGFloat,
         ptsPerGlyphUnits: CGFloat,
-        lookup: [UTF32Char: FontPointMetrics]
+        lookup: [UInt32: FontPointMetrics] // UTF32Char
         ) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
@@ -99,7 +99,7 @@ public struct FontPointFamilyMetrics: Codable {
         var sizesList = [CGSize]()
         var widthOverall: CGFloat = 0.0
         for utf32 in string.unicodeScalars {
-            let uint32: UTF32Char = utf32.value
+            let uint32: UInt32 = utf32.value // UTF32Char
             if let metrics = lookup[uint32] {
                 sizesList.append(CGSize(width: metrics.advance, height: 0.0))
                 widthOverall = widthOverall + metrics.advance
@@ -116,7 +116,7 @@ public struct FontPointFamilyMetrics: Codable {
     func getBoundingRects(string: String) -> [CGRect] {
         var boundsList = [CGRect]()
         for utf32 in string.unicodeScalars {
-            let uint32: UTF32Char = utf32.value
+            let uint32: UInt32 = utf32.value // UTF32Char
             if let metrics = lookup[uint32] {
                 boundsList.append(metrics.rectBounds)
             }
@@ -131,7 +131,7 @@ public struct FontPointFamilyMetrics: Codable {
     func getOpticalRects(string: String) -> [CGRect] {
         var opticalList = [CGRect]()
         for utf32 in string.unicodeScalars {
-            let uint32: UTF32Char = utf32.value
+            let uint32: UInt32 = utf32.value // UTF32Char
             if let metrics = lookup[uint32] {
                 opticalList.append(metrics.rectOptical)
             }
