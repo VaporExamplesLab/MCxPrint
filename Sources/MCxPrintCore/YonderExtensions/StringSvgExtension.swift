@@ -12,11 +12,11 @@ import Foundation
 
 public extension String {
     
-    public mutating func svgAdd(svg: String) {
+    mutating func svgAdd(svg: String) {
         self.append(svg + "\n")
     }
     
-    public mutating func svgAddCircle(
+    mutating func svgAddCircle(
         cx: Double, cy: Double, r: Double,
         stroke: String? = nil,
         strokeWidth: Double? = nil,   // default: 1.0
@@ -36,7 +36,7 @@ public extension String {
         )
     }
     
-    public mutating func svgAddCircle(
+    mutating func svgAddCircle(
         cx: Float, cy: Float, r: Float,
         stroke: String? = nil,
         strokeWidth: Float? = nil,   // default: 1.o
@@ -69,7 +69,7 @@ public extension String {
     ///     - strokeOpacity: pixels
     ///     - fill: pixels
     ///     - fillOpacity: pixels
-    public mutating func svgAddCircle(
+    mutating func svgAddCircle(
         cx: CGFloat, cy: CGFloat, r: CGFloat,
         stroke: String? = nil,
         strokeWidth: CGFloat? = nil,   // default: 1.o
@@ -132,7 +132,7 @@ public extension String {
     ///     - strokeWidth: pixels
     ///     - stroke: String. black, blue, red
     ///     - transform: String. e.g. "rotate(-45 20 100)"
-    public mutating func svgAddLine(
+    mutating func svgAddLine(
         x1: CGFloat, y1: CGFloat, x2: CGFloat, y2: CGFloat,
         strokeWidth: CGFloat = 1.0, // Int = 1
         stroke: String = "black",
@@ -165,7 +165,7 @@ public extension String {
     ///     - strokeOpacity: pixels
     ///     - fill: pixels
     ///     - fillOpacity: pixels
-    public mutating func svgAddRect(
+    mutating func svgAddRect(
         x: CGFloat, y: CGFloat, width w: CGFloat, height h: CGFloat,
         stroke: String? = nil,
         strokeWidth: CGFloat? = nil,   // default: 1.0
@@ -231,7 +231,7 @@ public extension String {
     ///     - fill: String. default: rgb(0, 0, 0) or "white"
     ///     - fontStyles: CSS Font Styles
     ///     - textAnchor: "start", "middle", or "end"
-    public mutating func svgAddText(
+    mutating func svgAddText(
         text: String,
         x: CGFloat,
         y: CGFloat,
@@ -279,7 +279,7 @@ public extension String {
     ///     - rotate: degrees
     ///     - fill: String. default: rgb(0, 0, 0) or "white"
     ///     - fontStyles: CSS Font Styles
-    public mutating func svgAddText(
+    mutating func svgAddText(
         text: String,
         x: CGFloat,
         y: CGFloat,
@@ -318,7 +318,7 @@ public extension String {
     //    <tspan x="100%" dy="35">tspan line 3</tspan>
     //    </text>
     //    </svg>
-    public mutating func svgAddTextBox(
+    mutating func svgAddTextBox(
         text: String,
         font: FontPointFamilyMetrics,
         fontLineHeight: CGFloat,
@@ -360,7 +360,7 @@ public extension String {
     /// **See Also**
     /// * [MDN \<g\>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/g)
     /// * [MDN transform](https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/transform)
-    public mutating func svgWrapGroup(
+    mutating func svgWrapGroup(
         translate: (x: CGFloat, y: CGFloat)?
         ) {
         var attributes = ""
@@ -383,7 +383,7 @@ public extension String {
     ///     - w: width pixels
     ///     - h: height pixels
     ///     - standalone: true to include standalone file format header
-    public mutating func svgWrapSvgTag(w: CGFloat, h: CGFloat, standalone: Bool = false) {
+    mutating func svgWrapSvgTag(w: CGFloat, h: CGFloat, standalone: Bool = false) {
         var beginTag = ""
 
         if standalone {
@@ -399,7 +399,7 @@ public extension String {
         self.append("</svg>\n")
     }
     
-    public mutating func svgWrapSvgTag(wPercent w: CGFloat, hPercent h: CGFloat, standalone: Bool = false) {
+    mutating func svgWrapSvgTag(wPercent w: CGFloat, hPercent h: CGFloat, standalone: Bool = false) {
         var beginTag = ""
 
         if standalone {

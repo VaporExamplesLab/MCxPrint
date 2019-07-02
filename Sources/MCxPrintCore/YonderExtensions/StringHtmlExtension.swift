@@ -10,16 +10,16 @@ import Foundation
 public extension String {
     
     
-    public mutating func htmlWrapHead() {
+    mutating func htmlWrapHead() {
     }
     
-    public mutating func htmlWrapBody() {
+    mutating func htmlWrapBody() {
     }
     
-    public mutating func htmlWrapTag() {
+    mutating func htmlWrapTag() {
     }
     
-    public mutating func htmlWrapMinimal() {
+    mutating func htmlWrapMinimal() {
         
         var encloseBefore = ""
         var encloseAfter = ""
@@ -42,7 +42,7 @@ public extension String {
         self = encloseBefore + self + encloseAfter
     }
     
-    public mutating func htmlWrap(bootstrap: Bool = true, highlight: Bool = true, math: Bool = true) {
+    mutating func htmlWrap(bootstrap: Bool = true, highlight: Bool = true, math: Bool = true) {
         
         var encloseBefore = ""
         var encloseAfter = ""

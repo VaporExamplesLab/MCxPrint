@@ -10,7 +10,7 @@ import Foundation
 public extension String {
     
     ///
-    public mutating func filterToSvgAscii() {
+    mutating func filterToSvgAscii() {
         var s: [String] = self.unicodeScalars.map { $0.escaped(asASCII: true)}
         for i in 0 ..< s.count {
             // swap out xml restricted characters
@@ -39,7 +39,7 @@ public extension String {
         self = result
     }
     
-    public func filteringToSvgAscii() -> String {
+    func filteringToSvgAscii() -> String {
         var s: [String] = self.unicodeScalars.map { $0.escaped(asASCII: true)}
         for i in 0 ..< s.count {
             // swap out xml restricted characters
