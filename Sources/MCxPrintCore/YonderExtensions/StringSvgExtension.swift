@@ -326,7 +326,7 @@ public extension String {
         position: CGPoint,
         framed: Bool = false
         ) {
-        let textWrapped = font.wordwrap(string: text, bounds: bounds)
+        let textWrapped = font.wordwrap(string: text, width: bounds.width)
         
         var s = ""
         var y = font.ptsAscent
