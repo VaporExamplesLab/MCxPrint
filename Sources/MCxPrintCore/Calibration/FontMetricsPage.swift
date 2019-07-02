@@ -9,9 +9,8 @@ import Foundation
 
 public struct FontMetricsPage {
     // Key Independent Parameters
-    // PASS: .dejaVuCondensed 
-    // FAIL: .mswImpact .gaugeRegular
-    let fontFamily  = FontHelper.PostscriptName.gaugeRegular
+    // .dejaVuCondensed, .mswImpact .gaugeRegular
+    let fontFamily  = FontHelper.PostscriptName.gaugeHeavy
     /// Font Size: Points Per Em
     let fontSize: CGFloat = 48.0
     
@@ -27,8 +26,6 @@ public struct FontMetricsPage {
     }
     
     public func svg() -> String {
-        font.maxAscentCharacter()
-        
         let baselineX = 0.15 * page.width
         let baselineY = 0.20 * page.height
         let ascentY = baselineY - font.ptsAscent
@@ -48,22 +45,20 @@ public struct FontMetricsPage {
         s.svgAddText(text: text, x: baselineX, y: baselineY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
         // text advances
-        guard let advances = font.getAdvances(string: text) 
-            else { 
-                print("ERROR: getAdvances() failed")
-                return ""
-        } 
+        let advances = font.getAdvances(string: text) 
         var x: CGFloat = baselineX
         let advancesList: [CGSize] = advances.sizes
         for size in advancesList {
             s.svgAddLine(
                 x1: x, y1: baselineY - font.ptsAscent,
-                x2: x, y2: baselineY - font.ptsDescent)
+                x2: x, y2: baselineY - font.ptsDescent,
+                strokeWidth: 0.25)
             x = x + size.width
         }
         s.svgAddLine(
             x1: x, y1: baselineY - font.ptsAscent,
-            x2: x, y2: baselineY - font.ptsDescent)
+            x2: x, y2: baselineY - font.ptsDescent,
+            strokeWidth: 0.25)
         
         let psName = font.fontFamily
         print("postScriptName: \(psName)")
@@ -85,13 +80,8 @@ public struct FontMetricsPage {
         // Text String
         s.svgAddText(text: text, x: baselineX, y: boundsOriginY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
-        guard let bounds = font.getBoundingRects(string: text) 
-            else {
-                print("ERROR: getBoundingRects() failed")
-                return ""
-        }
+        let boundsList = font.getBoundingRects(string: text) 
         
-        let boundsList = bounds.list
         print("boundsList \(boundsList)")
         var boundsOriginX: CGFloat = baselineX
         
@@ -132,13 +122,7 @@ public struct FontMetricsPage {
         // Text String
         s.svgAddText(text: text, x: baselineX, y: opticalsY, fontFamily: font.fontFamily, fontSize: font.fontSize)
         
-        guard let opticals = font.getOpticalRects(string: text) 
-            else {
-                print("ERROR: getOpticalRects() failed")
-                return ""
-        }
-        
-        let opticalsList = opticals.list
+        let opticalsList = font.getOpticalRects(string: text) 
         print("opticalsList \(opticalsList)")
         var opticalsX: CGFloat = baselineX
         
@@ -168,12 +152,12 @@ public struct FontMetricsPage {
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "      capHeight  \(font.ptsCapHeight)", 
+            text: "         capHeight  \(font.ptsCapHeight)", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0
         s.svgAddText(
-            text: "         decent \(font.ptsDescent) max below baseline", 
+            text: "            decent \(font.ptsDescent) max below baseline", 
             x: infoX, y: infoY, 
             fontFamily: FontHelper.PostscriptName.dejaVuMono, fontSize: 12.0)
         infoY = infoY + 16.0 + 16.0

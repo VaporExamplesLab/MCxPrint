@@ -29,9 +29,17 @@ public struct FontPointFamilyMetrics: Codable {
     public let glyphUnitsPerEm: CGFloat
     public let ptsPerGlyphUnits: CGFloat
     
+    public let unavailableAdvance: CGFloat
+    public let unavailableAscent: CGFloat
+    public let unavailableDescent: CGFloat
+    public let unavailableBounds: CGRect
+    public let unavailableOptical: CGRect
+    
     // CHARACTER ATTRIBUTES
     
-    public let lookup: [UInt32: FontPointMetric] = [UInt32: FontPointMetric]()
+    /// * string.unicodeScalars, utf32: Unicode.Scalar, utf32.value, UTF32Char, UInt32. 
+    /// * UTF-8 and UTF-16 are variable length. So, fixed length UTF-32 is used.
+    public let lookup: [UTF32Char: FontPointMetrics]
     
     init(
         fontFamily: FontHelper.PostscriptName, 
@@ -41,52 +49,105 @@ public struct FontPointFamilyMetrics: Codable {
         ptsLeading: CGFloat,
         ptsCapHeight: CGFloat,
         glyphUnitsPerEm: CGFloat,
-        ptsPerGlyphUnits: CGFloat
+        ptsPerGlyphUnits: CGFloat,
+        lookup: [UTF32Char: FontPointMetrics]
         ) {
         self.fontFamily = fontFamily
         self.fontSize = fontSize
         
+        /// Font Family Ascent (points)
         self.ptsAscent = ptsAscent
+        /// Font Family Descent (points)
         self.ptsDescent = ptsDescent
+        /// Font Family Leading (points)
         self.ptsLeading = ptsLeading
+        /// Font Family Capitization Height (points)
         self.ptsCapHeight = ptsCapHeight
         
         self.glyphUnitsPerEm = glyphUnitsPerEm
         self.ptsPerGlyphUnits = ptsPerGlyphUnits
+        
+        self.lookup = lookup
+        
+        // Compute values for font family
+        self.unavailableAdvance = fontSize
+        self.unavailableAscent = ptsAscent
+        self.unavailableDescent = ptsDescent
+        self.unavailableBounds = CGRect(
+            x: 0.0, 
+            y: 0.0, 
+            width: unavailableAdvance, 
+            height: fontSize
+        )
+        self.unavailableOptical = CGRect(
+            x: 0.0, 
+            y: 0.0, 
+            width: unavailableAdvance, 
+            height: fontSize
+        )
     }
-    
-    //let advances: [String: CGFloat]
-    
-    // points
-    //let size: CGFloat
-    //let pointsPerGlyphUnit: CGFloat
     
     func summary() -> String {
         var str = fontFamily.rawValue
-        str = str.appending("\n")
+        str.append(" \(fontSize)\n")
+        str.append("ptsAscent=\(ptsAscent), ptsDescent=\(ptsDescent)\n")
         return str
     }
     
-    func maxAscentCharacter() {
-        fatalError("not implemented")
+    /// - Returns: overall total string width, each character advance
+    func getAdvances(string: String) -> (overall: CGFloat, sizes: [CGSize]) {
+        var sizesList = [CGSize]()
+        var widthOverall: CGFloat = 0.0
+        for utf32 in string.unicodeScalars {
+            let uint32: UTF32Char = utf32.value
+            if let metrics = lookup[uint32] {
+                sizesList.append(CGSize(width: metrics.advance, height: 0.0))
+                widthOverall = widthOverall + metrics.advance
+            }
+            else {
+                sizesList.append(CGSize(width: unavailableAdvance, height: 0.0))
+                widthOverall = widthOverall + unavailableAdvance
+                print("Warn: \(hexString(utf32)) not available.")
+            }
+        }
+        return (widthOverall, sizesList)
     }
     
-    func getAdvances(string: String) -> (width: CGFloat, sizes: [CGSize])? {
-        fatalError("not implemented")
+    func getBoundingRects(string: String) -> [CGRect] {
+        var boundsList = [CGRect]()
+        for utf32 in string.unicodeScalars {
+            let uint32: UTF32Char = utf32.value
+            if let metrics = lookup[uint32] {
+                boundsList.append(metrics.rectBounds)
+            }
+            else {
+                boundsList.append(unavailableBounds)
+                print("Warn: \(hexString(utf32)) not available.")
+            }
+        }
+        return boundsList
     }
     
-    func getBoundingRects(string: String) -> (overall: CGRect, list: [CGRect])? {
-        fatalError("not implemented")
-    }
-    
-    func getOpticalRects(string: String) -> (overall: CGRect, list: [CGRect])? {
-        fatalError("not implemented")
+    func getOpticalRects(string: String) -> [CGRect] {
+        var opticalList = [CGRect]()
+        for utf32 in string.unicodeScalars {
+            let uint32: UTF32Char = utf32.value
+            if let metrics = lookup[uint32] {
+                opticalList.append(metrics.rectOptical)
+            }
+            else {
+                opticalList.append(unavailableOptical)
+                print("Warn: \(hexString(utf32)) not available.")
+            }
+        }
+        return opticalList
     }
 
     func toValues(string: String) {
         var result = ""
-        for utf32: Unicode.Scalar in string.unicodeScalars {
-            if let metrics = lookup[utf32.value] {
+        for utf32: UnicodeScalar in string.unicodeScalars { // Unicode.Scalar
+            let uint32 = utf32.value
+            if let metrics = lookup[uint32] {
                 result.append("\(metrics._character) ")
                 result.append("\(metrics.toUtf8Hex()) ")
                 result.append("\(metrics.toUtf16Hex()) ")
@@ -100,6 +161,16 @@ public struct FontPointFamilyMetrics: Codable {
         fatalError()
     }
     
+    internal func hexString(_ uft32: UnicodeScalar) -> String {
+        var result = ""
+        let string = String(uft32)
+        for codeUnit: UTF16.CodeUnit in string.utf16 { // UInt16
+            let hexcode = String(format: "%04x", codeUnit)
+            result.append("U+\(hexcode) ")
+        }
+        return result
+    }
+    
     // MARK: - Class Methods 
     
     static func fileLoad(fontFamily: FontHelper.PostscriptName, fontSize: CGFloat) -> FontPointFamilyMetrics? {
@@ -110,7 +181,8 @@ public struct FontPointFamilyMetrics: Codable {
             let decoder = JSONDecoder()
             let fontmetric = try decoder.decode(FontPointFamilyMetrics.self, from: data)
             return fontmetric
-        } catch {
+        } 
+        catch {
             print("ERROR: failed to load '\(filename)' \n\(error)")
             return nil
         }
@@ -125,7 +197,8 @@ public struct FontPointFamilyMetrics: Codable {
             let data = try encoder.encode(fontmetrics)
             let url = fontmetricsDirUrl.appendingPathComponent(filename)
             try data.write(to: url)
-        } catch {
+        } 
+        catch {
             print("ERROR: failed to save '\(filename)' \n\(error)")
         }
     }

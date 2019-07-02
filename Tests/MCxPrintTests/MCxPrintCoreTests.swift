@@ -88,11 +88,12 @@ class MCxPrintCoreTests: XCTestCase {
     func testCreateUnicodeFontMap() {
         let fontFamily  = FontHelper.PostscriptName.dejaVuCondensed
         let fontSize: CGFloat = 12.0
-        let font = try! FontPointMetrics(fontFamily: fontFamily, fontSize: fontSize)
-        
-        let dictionary: [CGGlyph : UnicodeScalar] = font.createGlyphToUnicodeMap()
-        
-        print("dictionary.count = \(dictionary.count)")
+        if let font = FontPointFamilyMetrics.fileLoad(fontFamily: fontFamily, fontSize: fontSize) {
+            print("font.lookup.count = \(font.lookup.count)")
+        }
+        else {
+            XCTFail("ERROR: could not load font \(fontFamily) \(fontFamily)")
+        }
     }
     
     func testLibraryFilePage() {
