@@ -46,14 +46,6 @@ public struct LibraryFileLabel: Codable {
         
         var s = ""
         
-        // Collection String ID
-        //s.svgAddRect(x: 0.0, y: 0.0, width: ptsCollectionWidth, height: ptsLabelRect.height, fill: colors.bFill)
-        //s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: colors.bFont, fontFamily: FontHelper.PostscriptName.mswImpact)
-        //
-        //if framed {
-        //    s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: "black")
-        //}
-        
         // Background
         s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: colors.aFill, fill: colors.aFill)
         //s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: colors.aFill)
@@ -80,6 +72,14 @@ public struct LibraryFileLabel: Codable {
         // UDC Heading Label
         s.svgAddText(text: udcLabel, x: ptsInsetX, y: ptsUdcHeadingY, fill: colors.aFont)
         
+        // Collection String ID
+        s.svgAddRect(x: 0.0, y: 0.0, width: ptsCollectionWidth, height: ptsLabelRect.height, fill: colors.bFill)
+        s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: colors.bFont, fontFamily: FontHelper.PostscriptName.mswImpact)
+        
+        if framed {
+            s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: "black")
+        }
+
         return s
     }
 }
