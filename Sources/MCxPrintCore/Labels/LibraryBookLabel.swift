@@ -111,7 +111,7 @@ public struct LibraryBookLabel: Codable {
         
         // Collection String ID
         s.svgAddRect(x: 0.0, y: 0.0, width: ptsFontLineHeight + 4.0, height: ptsLabelHeight, fill: "black")
-        s.svgAddText(text: collectionSID, x: 6.0, y: 5.0, rotate: 90.0, fill: "white")
+        s.svgAddText(text: collectionSID, x: 4.0, y: 3.0, rotate: 90.0, fill: "white", fontFamily: FontHelper.PostscriptName.gaugeHeavy)
         
         s.svgWrapSvgTag(w: wxhLandscape.width, h: wxhLandscape.height, standalone: true)
         

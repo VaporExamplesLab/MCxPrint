@@ -51,7 +51,7 @@ class MCxPrintCoreTests: XCTestCase {
         let labelBookA = LibraryBookLabel(
             udcCall: "004.52-•-MC-WEDN",
             udcLabel: "Generic Labels - SVG Layout Example",
-            collectionSID: "ABCDEFgH",
+            collectionSID: "Reference",
             collectionColor: "green"
         )
         let svgBookA = labelBookA.svg()
@@ -63,13 +63,13 @@ class MCxPrintCoreTests: XCTestCase {
         let labelBookB = LibraryBookLabel(
             udcCall: "621.382202855132-•-EgPyM-CLADSP-v1991",
             udcLabel: "Signal processing - Specific programming language",
-            collectionSID: "ABCDEFgH",
+            collectionSID: "Oversize",
             collectionColor: ""
         )
         let svgBookB = labelBookB.svg()
         try? svgBookB.write(to: spoolTestUrl.appendingPathComponent("TestBookB.svg"), atomically: false, encoding: .utf8)
         
-        printJob.svgToPdf(basename: "TextBookB")
+        printJob.svgToPdf(basename: "TestBookB")
         
         // write to and read from spool directory
         if let spoolBookUrlA = LibraryBookLabel.spoolWrite(labelBookA),
@@ -135,7 +135,7 @@ class MCxPrintCoreTests: XCTestCase {
             udcCall: "340-•-JoBah-LC",
             udcLabel: "Terms of Use",
             collectionSID: "Legal",
-            collectionColor: LabelColorTheme.legal
+            collectionColor: LabelColorTheme.business
         )
 
         let fileLabelD = LibraryFileLabel(

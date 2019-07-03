@@ -49,7 +49,7 @@ public enum LabelColorTheme: String, Codable { // LabelColorTheme
     /// bright green
     case finances
     /// yellow
-    case legal
+    case business
     /// marketing & communication: teal
     case markcom
     /// burgundy
@@ -73,8 +73,8 @@ public enum LabelColorTheme: String, Codable { // LabelColorTheme
             return LabelColorRecord(aFill: .grayLight, aFont: .black, bFill: .grayDark, bFont: .white)
         case .finances:
             return LabelColorRecord(aFill: .greenLight, aFont: .black, bFill: .greenDark, bFont: .white)
-        /// yellow
-        case .legal:
+        /// yellow Business Records
+        case .business:
             return LabelColorRecord(aFill: .yellowLight, aFont: .black, bFill: .yellowDark, bFont: .white)
         /// marketing & communication: teal
         case .markcom:
@@ -85,7 +85,7 @@ public enum LabelColorTheme: String, Codable { // LabelColorTheme
         /// orange
         case .project:
              return LabelColorRecord(aFill: .orangeLight, aFont: .black, bFill: .orangeDark, bFont: .white)
-        /// blue
+        /// blue Personal Records
         case .record:
             return LabelColorRecord(aFill: .blueLight, aFont: .black, bFill: .blueDark, bFont: .white)
         /// No coloration. Simple black & white. Same as unspecified.
