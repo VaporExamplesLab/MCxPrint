@@ -160,10 +160,10 @@ public extension String {
     ///     - y: left pixels
     ///     - width: pixels
     ///     - height: pixels
-    ///     - stroke: pixels
+    ///     - stroke: String
     ///     - strokeWidth: pixels
     ///     - strokeOpacity: pixels
-    ///     - fill: pixels
+    ///     - fill: String
     ///     - fillOpacity: pixels
     mutating func svgAddRect(
         x: CGFloat, y: CGFloat, width w: CGFloat, height h: CGFloat,
@@ -177,7 +177,8 @@ public extension String {
         var style = ""
         
         // -- stroke --
-        if stroke == nil && strokeWidth == nil && strokeOpacity == nil {
+        if stroke == nil && strokeWidth == nil && strokeOpacity == nil && fill == nil && fillOpacity == nil {
+            // default to a black stroke if no stroke & fill information is provided.
             style.append("stroke:black;")
         }
         else {
@@ -262,8 +263,13 @@ public extension String {
         self.append(tagBefore + textEncoded + tagAfter)
     }
     
+        
     /// svgAddText \<text x="150" y="125" font-size="60" text-anchor="middle" fill="white"\>SVG\</text\>
+    ///
     /// \<text x="x" y="y" width="width" height="height"/\>
+    ///
+    /// * +x moves "rightward" along the string baseline. 
+    /// * +y moves ascends "higher up" relative to the string baseline
     ///
     /// [see MDN \<rect\>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/text)
     ///
@@ -310,16 +316,25 @@ public extension String {
         self.append(tagBefore + textEncoded + tagAfter)
     }
     
-    // func svgTextBox ... remove spaces.
-    //    <svg style="border:1px solid blue;" text-anchor="end">
-    //    <text font-size="30px">
-    //    <tspan x="100%" dy="30">tspan line 1</tspan>
-    //    <tspan x="100%" dy="35">tspan line 2</tspan>
-    //    <tspan x="100%" dy="35">tspan line 3</tspan>
-    //    </text>
-    //    </svg>
+    /// svgAddTextBox ... removes reduces whitespace to single spaces.
+    ///
+    /// ```
+    /// <svg style="border:1px solid blue;" text-anchor="end"> 
+    ///   <text font-size="30px"> 
+    ///     <tspan x="100%" dy="30">tspan line 1</tspan> 
+    ///     <tspan x="100%" dy="35">tspan line 2</tspan> 
+    ///     <tspan x="100%" dy="35">tspan line 3</tspan> 
+    ///   </text>
+    /// </svg>
+    /// ```
+    ///
+    /// * position +x moves "rightward" along the string baseline. 
+    /// * position +y moves descends "lower down" relative to the string baseline
+    ///
+    /// :TBD: review & document coordinate system for consistent use of X/Y directional system. Font space. SVG space.
     mutating func svgAddTextBox(
         text: String,
+        fill: String = "#000000",
         font: FontPointFamilyMetrics,
         fontLineHeight: CGFloat,
         bounds: CGSize,
@@ -329,15 +344,15 @@ public extension String {
         let textWrapped = font.wordwrap(string: text, width: bounds.width)
         
         var s = ""
-        var y = font.ptsAscent
+        var lineY: CGFloat = 0.0 // font.ptsAscent
         for line in textWrapped {
-            if y + font.ptsDescent < bounds.height {
-                s.svgAddText(text: line, x: 0, y: y)
+            if lineY + font.fontSize + font.ptsDescent < bounds.height {
+                s.svgAddText(text: line, x: 0, y: lineY, fill: fill, fontFamily: font.fontFamily, fontSize: font.fontSize) // textAnchor: String
             }
             else {
                 break
             }
-            y = y + font.fontSize
+            lineY = lineY + font.fontSize
             
         }
     
@@ -346,9 +361,9 @@ public extension String {
         
         if framed {
             s.svgAddRect(
-                x: position.x, y: position.y, 
+                x: position.x, y: position.y - font.ptsAscent, 
                 width: bounds.width, height: bounds.height, 
-                stroke: "black")
+                stroke: "black", strokeWidth: 0.25)
         }
         
         self.append(s)

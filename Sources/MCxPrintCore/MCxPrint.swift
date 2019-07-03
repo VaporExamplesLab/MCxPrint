@@ -21,17 +21,7 @@ public final class MCxPrint {
         //    }
         //
         //let firstArgument = arguments[1]
-        
-        printStderr("Arguments:\n\(arguments)")
-        
-        // ------------------
-        // -- Font Metrics --
-        let svgPageFontMetrics = FontMetricsPage()
-        let fontMetricsPage = svgPageFontMetrics.svg()
-        try? fontMetricsPage.write(to: scratchUrl.appendingPathComponent("PageFontMetrics.svg"), atomically: false, encoding: .utf8)
-        
-        let printJob = PrintJob()
-        printJob.svgToPdf(basename: "PageFontMetrics")
+
     }
 }
 

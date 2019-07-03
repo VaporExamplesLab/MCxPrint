@@ -117,4 +117,41 @@ public struct LibraryBookLabel: Codable {
         
         return s
     }
+    
+    // MARK: - Class Methods 
+    
+    static func spoolLoad(fileUrl: URL) -> LibraryBookLabel? {
+        do {
+            let data = try Data(contentsOf: fileUrl)
+            let decoder = JSONDecoder()
+            let libraryBookLabel = try decoder.decode(LibraryBookLabel.self, from: data)
+            return libraryBookLabel
+        } 
+        catch {
+            print("ERROR: failed to load '\(fileUrl.lastPathComponent)' \n\(error)")
+            return nil
+        }
+    }
+    
+    static func spoolWrite(_ fileLabel: LibraryBookLabel) -> URL? {
+        let datestamp = DateTimeUtil.getSpoolTimestamp()
+        let filename = "\(fileLabel.udcCall)_\(datestamp)"
+        let fileUrl = spoolUrl
+            .appendingPathComponent("labelbook")
+            .appendingPathComponent(filename)
+            .appendingPathExtension("json")
+        
+        do {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(fileLabel)
+            let url = fileUrl
+            try data.write(to: url)
+            return fileUrl
+        } 
+        catch {
+            print("ERROR: failed to save '\(fileUrl.lastPathComponent)' \n\(error)")
+            return nil
+        }
+    }
+    
 }

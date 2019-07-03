@@ -92,7 +92,7 @@ public enum LabelColorTheme: String, Codable { // LabelColorTheme
         case .reference:
             return LabelColorRecord(aFill: .white, aFont: .black, bFill: .black, bFont: .white)
         case .system:
-            return LabelColorRecord(aFill: .grayDark, aFont: .white, bFill: .black, bFont: .black)
+            return LabelColorRecord(aFill: .grayDark, aFont: .white, bFill: .black, bFont: .white) // bFont: .black to not show font
         case .unspecified:
             return LabelColorRecord(aFill: .white, aFont: .black, bFill: .black, bFont: .white)
         }

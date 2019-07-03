@@ -10,8 +10,8 @@ import Foundation
 public struct PrintJob {
     
     func svgToPdf(basename: String) {
-        let workUrl = scratchUrl
-        let workPath = scratchPath
+        let workUrl = spoolTestUrl
+        let workPath = spoolTestPath
         let inputSvgPath = workPath.appending("/\(basename).svg")
         let outputPdfPath = workPath.appending("/\(basename).pdf")
         
