@@ -224,24 +224,17 @@ class MCxPrintCoreTests: XCTestCase {
         
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-    
-    func testWrite() {
+    func testFilterToSvgAscii() {
         do {
             let str = "it's"
             
-            let svgPreFilter = "it's \\ < > & \" "
+            let svgPreFilter = "it's \\ < > & \" ⌘ ⭐️"
             let svgPostFilter = svgPreFilter.filteringToSvgAscii()
             try svgPostFilter.write(
                 to: spoolTestUrl.appendingPathComponent("00_filtered.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.utf8)
-
+            
             try str.write(
                 to: spoolTestUrl.appendingPathComponent("01_utf8.txt"), 
                 atomically: false, 
@@ -275,15 +268,17 @@ class MCxPrintCoreTests: XCTestCase {
                 atomically: false, 
                 encoding: String.Encoding.utf8)
             // it\'s
-
+            
             
         } catch {
-            
         }
-        
-        
-        
-        
+    }
+    
+    func testPerformanceExample() {
+        // This is an example of a performance test case.
+        self.measure {
+            // Put the code you want to measure the time of here.
+        }
     }
     
     static var allTests = [
@@ -295,6 +290,7 @@ class MCxPrintCoreTests: XCTestCase {
         ("testLibraryFilePage", testLibraryFilePage),
         ("testStringEncoding", testStringEncoding),
         ("testLabelJson", testLabelJson),
+        ("testFilterToSvgAscii", testFilterToSvgAscii),        
         ("testPerformanceExample", testPerformanceExample)
     ]
 
