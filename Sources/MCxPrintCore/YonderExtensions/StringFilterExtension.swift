@@ -21,9 +21,13 @@ public extension String {
                 s[i] = "&lt;"
             case ">":
                 s[i] = "&gt;"
-            case "\"":
+            case "\\\"":
+                // Note: double quotation `"` existing in Swift String as `\"`
+                // therefore `\\\"` is required this case
                 s[i] = "&quot;"
-            case "'":
+            case "\\\'":
+                // Note: single quotation `'` existing in Swift String as `\'`
+                // therefore `\\\'` is required this case
                 s[i] = "&apos;"
             default:
                 break;
@@ -41,6 +45,7 @@ public extension String {
     
     func filteringToSvgAscii() -> String {
         var s: [String] = self.unicodeScalars.map { $0.escaped(asASCII: true)}
+        
         for i in 0 ..< s.count {
             // swap out xml restricted characters
             switch s[i] {
@@ -50,9 +55,13 @@ public extension String {
                 s[i] = "&lt;"
             case ">":
                 s[i] = "&gt;"
-            case "\"":
+            case "\\\"":
+                // Note: double quotation `"` existing in Swift String as `\"`
+                // therefore `\\\"` is required this case
                 s[i] = "&quot;"
-            case "'":
+            case "\\\'":
+                // Note: single quotation `'` existing in Swift String as `\'`
+                // therefore `\\\'` is required this case
                 s[i] = "&apos;"
             default:
                 break;

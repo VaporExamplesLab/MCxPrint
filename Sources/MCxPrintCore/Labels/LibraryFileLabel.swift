@@ -135,7 +135,7 @@ public struct LibraryFileLabel: Codable {
         
         do {
             let encoder = JSONEncoder()
-            let data = try encoder.encode(fileLabel)
+            let data: Data = try encoder.encode(fileLabel)
             let url = fileUrl
             try data.write(to: url)
             return fileUrl

@@ -231,6 +231,61 @@ class MCxPrintCoreTests: XCTestCase {
         }
     }
     
+    func testWrite() {
+        do {
+            let str = "it's"
+            
+            let svgPreFilter = "it's \\ < > & \" "
+            let svgPostFilter = svgPreFilter.filteringToSvgAscii()
+            try svgPostFilter.write(
+                to: spoolTestUrl.appendingPathComponent("00_filtered.txt"), 
+                atomically: false, 
+                encoding: String.Encoding.utf8)
+
+            try str.write(
+                to: spoolTestUrl.appendingPathComponent("01_utf8.txt"), 
+                atomically: false, 
+                encoding: String.Encoding.utf8)
+            // it's
+            
+            try str.write(
+                to: spoolTestUrl.appendingPathComponent("02_ascii.txt"), 
+                atomically: false, 
+                encoding: String.Encoding.ascii)
+            // it's
+            
+            let label = LibraryFileLabel(
+                title: "it's",
+                udcCall: "",
+                udcLabel: "",
+                collectionSID: "",
+                collectionColor: LabelColorTheme.business
+            )
+            let svglabelStr: String = label.svg()
+            try svglabelStr.write(
+                to: spoolTestUrl.appendingPathComponent("03_label.txt"), 
+                atomically: false, 
+                encoding: String.Encoding.utf8)
+            // it\'s
+            
+            var svgAddText = ""
+            svgAddText.svgAddText(text: "it's", x: 0.0, y: 0.0)
+            try svgAddText.write(
+                to: spoolTestUrl.appendingPathComponent("04_addtext.txt"), 
+                atomically: false, 
+                encoding: String.Encoding.utf8)
+            // it\'s
+
+            
+        } catch {
+            
+        }
+        
+        
+        
+        
+    }
+    
     static var allTests = [
         ("testExample", testExample),
         ("testInventoryPartLabel", testInventoryPartLabel),
