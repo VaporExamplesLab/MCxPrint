@@ -17,7 +17,7 @@ public struct LibraryBookLabel: Codable {
     //"collectionSID" : "ABCDEFgH",
     let collectionSID: String
     
-    public init(udcCall: String, udcLabel: String, collectionSID: String, collectionColor: String) {
+    public init(udcCall: String, udcLabel: String, collectionSID: String) {
         self.udcCall = udcCall
         self.udcLabel = udcLabel
         self.collectionSID = collectionSID
