@@ -76,17 +76,17 @@ class MCxPrintCoreTests: XCTestCase {
             print("spoolBookUrlA: \(spoolBookUrlA.path)")
             print("spoolBookUrlB: \(spoolBookUrlB.path)")
             
-            if let spoolLabelA = LibraryBookLabel(fileUrl: spoolBookUrlA),
-                let spoolLabelB = LibraryBookLabel(fileUrl: spoolBookUrlB) {
+            do {
+                let spoolLabelA = try LibraryBookLabel(jsonFileUrl: spoolBookUrlA)
+                let spoolLabelB = try LibraryBookLabel(jsonFileUrl: spoolBookUrlB)
                 XCTAssert(spoolLabelA.udcCall == labelBookA.udcCall)
                 XCTAssert(spoolLabelB.udcCall == labelBookB.udcCall)
                 XCTAssert(true, "read spool files OK.")
             }
+            catch {
+                XCTFail("testLibraryBookLabel()")
+            }
         }
-        else {
-            XCTFail("testLibraryFilePage()")
-        }
-
     }
     
     func testFontMetricsPage() {
@@ -191,19 +191,23 @@ class MCxPrintCoreTests: XCTestCase {
         if let spoolUrlA = fileLabelA.spoolWrite(),
             let spoolUrlB = fileLabelB.spoolWrite(),
             let spoolUrlC = fileLabelC.spoolWrite()
-            {
-                print("spoolUrlA: \(spoolUrlA.path)")
-                print("spoolUrlB: \(spoolUrlB.path)")
-                print("spoolUrlC: \(spoolUrlC.path)")
-                
-                if let spoolLabelA = LibraryFileLabel(fileUrl: spoolUrlA),
-                    let spoolLabelB = LibraryFileLabel(fileUrl: spoolUrlB),
-                    let spoolLabelC = LibraryFileLabel(fileUrl: spoolUrlC) {
-                    XCTAssert(spoolLabelA.udcCall == fileLabelA.udcCall)
-                    XCTAssert(spoolLabelB.udcCall == fileLabelB.udcCall)
-                    XCTAssert(spoolLabelC.udcCall == fileLabelC.udcCall)
-                    XCTAssert(true, "read spool files OK.")
-                }
+        {
+            print("spoolUrlA: \(spoolUrlA.path)")
+            print("spoolUrlB: \(spoolUrlB.path)")
+            print("spoolUrlC: \(spoolUrlC.path)")
+            
+            do {
+                let spoolLabelA = try LibraryFileLabel(jsonFileUrl: spoolUrlA)
+                let spoolLabelB = try LibraryFileLabel(jsonFileUrl: spoolUrlB)
+                let spoolLabelC = try LibraryFileLabel(jsonFileUrl: spoolUrlC)
+                XCTAssert(spoolLabelA.udcCall == fileLabelA.udcCall)
+                XCTAssert(spoolLabelB.udcCall == fileLabelB.udcCall)
+                XCTAssert(spoolLabelC.udcCall == fileLabelC.udcCall)
+                XCTAssert(true, "read spool files OK.")
+            }
+            catch {
+                XCTFail("testLibraryFilePage()")
+            }
         }
         else {
             XCTFail("testLibraryFilePage()")

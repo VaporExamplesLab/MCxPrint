@@ -31,7 +31,7 @@ public struct LibraryBookLabel: Codable {
         do {
             let data = try Data(contentsOf: jsonFileUrl)
             let decoder = JSONDecoder()
-            let temp = try decoder.decode(LibraryFileLabel.self, from: data)
+            let temp = try decoder.decode(LibraryBookLabel.self, from: data)
             self.udcCall = temp.udcCall
             self.udcLabel = temp.udcLabel
             self.collectionSID = temp.collectionSID
