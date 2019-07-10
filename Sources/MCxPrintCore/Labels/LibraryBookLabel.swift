@@ -17,10 +17,28 @@ public struct LibraryBookLabel: Codable {
     //"collectionSID" : "ABCDEFgH",
     let collectionSID: String
     
+    var description: String {
+        return toJsonStr() ?? "nil"
+    }
+
     public init(udcCall: String, udcLabel: String, collectionSID: String) {
         self.udcCall = udcCall
         self.udcLabel = udcLabel
         self.collectionSID = collectionSID
+    }
+    
+    public init(jsonFileUrl: URL) throws {
+        do {
+            let data = try Data(contentsOf: jsonFileUrl)
+            let decoder = JSONDecoder()
+            let temp = try decoder.decode(LibraryFileLabel.self, from: data)
+            self.udcCall = temp.udcCall
+            self.udcLabel = temp.udcLabel
+            self.collectionSID = temp.collectionSID
+        } catch {
+            print(":ERROR: LibraryFileLable init() failed url=\(jsonFileUrl) error=\(error)" )
+            throw MCxPrint.Error.failedToLoadFile
+        }
     }
     
     public func svg() -> String {
@@ -118,38 +136,44 @@ public struct LibraryBookLabel: Codable {
         return s
     }
     
-    // MARK: - Class Methods 
-    
-    static func spoolLoad(fileUrl: URL) -> LibraryBookLabel? {
+    public func toJsonData() -> Data? {
         do {
-            let data = try Data(contentsOf: fileUrl)
-            let decoder = JSONDecoder()
-            let libraryBookLabel = try decoder.decode(LibraryBookLabel.self, from: data)
-            return libraryBookLabel
-        } 
-        catch {
-            print("ERROR: failed to load '\(fileUrl.lastPathComponent)' \n\(error)")
-            return nil
+            let encoder = JSONEncoder()
+            let data: Data = try encoder.encode(self)
+            return data
+        } catch {
+            print(":ERROR: LibraryFileLabel toJsonData() \(error)")
         }
+        return nil
     }
     
-    static func spoolWrite(_ fileLabel: LibraryBookLabel) -> URL? {
+    public func toJsonStr() -> String? {
+        if let d = toJsonData() {
+            return String(data: d, encoding: String.Encoding.utf8)
+        }
+        return nil
+    }
+    
+    public func spoolWrite() -> URL? {
         let datestamp = DateTimeUtil.getSpoolTimestamp()
-        let filename = "\(fileLabel.udcCall)_\(datestamp)"
+        let filename = "\(self.udcCall)_\(datestamp)"
         let fileUrl = spoolUrl
             .appendingPathComponent("labelbook")
             .appendingPathComponent(filename)
             .appendingPathExtension("json")
         
         do {
-            let encoder = JSONEncoder()
-            let data = try encoder.encode(fileLabel)
+            guard let data = self.toJsonData() 
+                else {
+                    print("ERROR: failed generate JSON '\(self.description)'")
+                    return nil
+            }
             let url = fileUrl
             try data.write(to: url)
             return fileUrl
         } 
         catch {
-            print("ERROR: failed to save '\(fileUrl.lastPathComponent)' \n\(error)")
+            print("ERROR: LibraryBookLabel failed to save :: '\(fileUrl.lastPathComponent)' :: \(error)")
             return nil
         }
     }

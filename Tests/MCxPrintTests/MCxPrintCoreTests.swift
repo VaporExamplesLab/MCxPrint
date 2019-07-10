@@ -70,14 +70,14 @@ class MCxPrintCoreTests: XCTestCase {
         printJob.svgToPdf(basename: "TestBookB")
         
         // write to and read from spool directory
-        if let spoolBookUrlA = LibraryBookLabel.spoolWrite(labelBookA),
-            let spoolBookUrlB = LibraryBookLabel.spoolWrite(labelBookB)
+        if let spoolBookUrlA = labelBookA.spoolWrite(),
+            let spoolBookUrlB = labelBookB.spoolWrite()
         {
             print("spoolBookUrlA: \(spoolBookUrlA.path)")
             print("spoolBookUrlB: \(spoolBookUrlB.path)")
             
-            if let spoolLabelA = LibraryBookLabel.spoolLoad(fileUrl: spoolBookUrlA),
-                let spoolLabelB = LibraryBookLabel.spoolLoad(fileUrl: spoolBookUrlB) {
+            if let spoolLabelA = LibraryBookLabel(fileUrl: spoolBookUrlA),
+                let spoolLabelB = LibraryBookLabel(fileUrl: spoolBookUrlB) {
                 XCTAssert(spoolLabelA.udcCall == labelBookA.udcCall)
                 XCTAssert(spoolLabelB.udcCall == labelBookB.udcCall)
                 XCTAssert(true, "read spool files OK.")
@@ -188,17 +188,17 @@ class MCxPrintCoreTests: XCTestCase {
         printJob.svgToPdf(basename: "TestLibraryFilePage")
         
         // write to and read from spool directory
-        if let spoolUrlA = LibraryFileLabel.spoolWrite(fileLabelA),
-            let spoolUrlB = LibraryFileLabel.spoolWrite(fileLabelB),
-            let spoolUrlC = LibraryFileLabel.spoolWrite(fileLabelC)
+        if let spoolUrlA = fileLabelA.spoolWrite(),
+            let spoolUrlB = fileLabelB.spoolWrite(),
+            let spoolUrlC = fileLabelC.spoolWrite()
             {
                 print("spoolUrlA: \(spoolUrlA.path)")
                 print("spoolUrlB: \(spoolUrlB.path)")
                 print("spoolUrlC: \(spoolUrlC.path)")
                 
-                if let spoolLabelA = LibraryFileLabel.spoolLoad(fileUrl: spoolUrlA),
-                    let spoolLabelB = LibraryFileLabel.spoolLoad(fileUrl: spoolUrlB),
-                    let spoolLabelC = LibraryFileLabel.spoolLoad(fileUrl: spoolUrlC) {
+                if let spoolLabelA = LibraryFileLabel(fileUrl: spoolUrlA),
+                    let spoolLabelB = LibraryFileLabel(fileUrl: spoolUrlB),
+                    let spoolLabelC = LibraryFileLabel(fileUrl: spoolUrlC) {
                     XCTAssert(spoolLabelA.udcCall == fileLabelA.udcCall)
                     XCTAssert(spoolLabelB.udcCall == fileLabelB.udcCall)
                     XCTAssert(spoolLabelC.udcCall == fileLabelC.udcCall)
