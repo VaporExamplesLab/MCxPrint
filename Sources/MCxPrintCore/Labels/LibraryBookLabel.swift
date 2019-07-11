@@ -165,7 +165,7 @@ public struct LibraryBookLabel: Codable {
         do {
             guard let data = self.toJsonData() 
                 else {
-                    print("ERROR: failed generate JSON '\(self.description)'")
+                    print("ERROR: LibraryBookLabel failed generate JSON '\(self.description)'")
                     return nil
             }
             let url = fileUrl

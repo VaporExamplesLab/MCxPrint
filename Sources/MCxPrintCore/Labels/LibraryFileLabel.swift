@@ -50,7 +50,7 @@ public struct LibraryFileLabel: Codable {
     }
     
     // JSON
-    public func svg(framed: Bool = false) -> String {
+    public func svg(framed: Bool = false, standalone: Bool = false) -> String {
         let ptsLabelRect = PrintTemplate.PaperPointRect.avery5027
         //
         let ptsFontLineHeight: CGFloat = 13.0
@@ -127,6 +127,10 @@ public struct LibraryFileLabel: Codable {
             s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: "black")
         }
 
+        if standalone {
+            s.svgWrapSvgTag(w: ptsLabelRect.width, h: ptsLabelRect.height, standalone: true)
+        }
+        
         return s
     }
     
@@ -159,7 +163,7 @@ public struct LibraryFileLabel: Codable {
         do {
             guard let data = self.toJsonData() 
                 else {
-                    print("ERROR: failed generate JSON '\(self.description)'")
+                    print("ERROR: LibraryFileLabel failed generate JSON '\(self.description)'")
                     return nil
             }
             let url = fileUrl
@@ -167,7 +171,7 @@ public struct LibraryFileLabel: Codable {
             return fileUrl
         } 
         catch {
-            print("ERROR: failed to save '\(fileUrl.lastPathComponent)' \n\(error)")
+            print("ERROR: LibraryFileLabel failed to save '\(fileUrl.lastPathComponent)' \n\(error)")
             return nil
         }
     }
