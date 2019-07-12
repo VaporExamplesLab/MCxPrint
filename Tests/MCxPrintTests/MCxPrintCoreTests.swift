@@ -25,16 +25,19 @@ class MCxPrintCoreTests: XCTestCase {
     }
 
     func testInventoryPartLabel() {
-    let partA = InventoryPartLabel(
-        name: "Resistor",
-        value: "100K",
-        description: "carbon"
+        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
+        InventoryPartLabel.queue = queue
+        let cachedUrl = queue.spool.stage.cached
+
+        let partA = InventoryPartLabel(
+            name: "Resistor",
+            value: "100K",
+            description: "carbon"
         )
         let svgPartA = partA.svg()
-        try? svgPartA.write(to: spoolTestUrl.appendingPathComponent("TestPartA.svg"), atomically: false, encoding: .utf8)
+        try? svgPartA.write(to: cachedUrl.appendingPathComponent("TestPartA.svg"), atomically: false, encoding: .utf8)
         
-        let printJob = PrintJob()
-        printJob.svgToPdf(basename: "TestPartA")
+        queue.svgToPdf(basename: "TestPartA")
         
         let partB = InventoryPartLabel(
             name: "9DOF Sensor",
@@ -42,22 +45,25 @@ class MCxPrintCoreTests: XCTestCase {
             description: ""
         )
         let svgPartB = partB.svg()
-        try? svgPartB.write(to: spoolTestUrl.appendingPathComponent("TestPartB.svg"), atomically: false, encoding: .utf8)
+        try? svgPartB.write(to: cachedUrl.appendingPathComponent("TestPartB.svg"), atomically: false, encoding: .utf8)
         
-        printJob.svgToPdf(basename: "TestPartB")
+        queue.svgToPdf(basename: "TestPartB")
     }
 
     func testLibraryBookLabel() {
+        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
+        LibraryBookLabel.queue = queue
+        let cachedUrl = queue.spool.stage.cached
+
         let labelBookA = LibraryBookLabel(
             udcCall: "004.52-•-MC-WEDN",
             udcLabel: "Generic Labels - SVG Layout Example",
             collectionSID: "Reference"
         )
         let svgBookA = labelBookA.svg()
-        try? svgBookA.write(to: spoolTestUrl.appendingPathComponent("TestBookA.svg"), atomically: false, encoding: .utf8)
+        try? svgBookA.write(to: cachedUrl.appendingPathComponent("TestBookA.svg"), atomically: false, encoding: .utf8)
         
-        let printJob = PrintJob()
-        printJob.svgToPdf(basename: "TestBookA")
+        queue.svgToPdf(basename: "TestBookA")
         
         let labelBookB = LibraryBookLabel(
             udcCall: "621.382202855132-•-EgPyM-CLADSP-v1991",
@@ -65,9 +71,9 @@ class MCxPrintCoreTests: XCTestCase {
             collectionSID: "Oversize"
         )
         let svgBookB = labelBookB.svg()
-        try? svgBookB.write(to: spoolTestUrl.appendingPathComponent("TestBookB.svg"), atomically: false, encoding: .utf8)
+        try? svgBookB.write(to: cachedUrl.appendingPathComponent("TestBookB.svg"), atomically: false, encoding: .utf8)
         
-        printJob.svgToPdf(basename: "TestBookB")
+        queue.svgToPdf(basename: "TestBookB")
         
         // write to and read from spool directory
         if let spoolBookUrlA = labelBookA.spoolWrite(),
@@ -90,14 +96,16 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testFontMetricsPage() {
+        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
+        let cachedUrl = queue.spool.stage.cached
+
         // ------------------
         // -- Font Metrics --
         let fontMetricsPage = FontMetricsPage()
         let fontMetricsPageSvg = fontMetricsPage.svg()
-        try? fontMetricsPageSvg.write(to: spoolTestUrl.appendingPathComponent("TestFontMetricsPage.svg"), atomically: false, encoding: .utf8)
+        try? fontMetricsPageSvg.write(to: cachedUrl.appendingPathComponent("TestFontMetricsPage.svg"), atomically: false, encoding: .utf8)
         
-        let printJob = PrintJob()
-        printJob.svgToPdf(basename: "TestFontMetricsPage")
+        queue.svgToPdf(basename: "TestFontMetricsPage")
     }
     
     func testCreateUnicodeFontMap() {
@@ -112,6 +120,10 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testLibraryFilePage() {
+        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
+        LibraryFileLabel.queue = queue
+        let cachedUrl = queue.spool.stage.cached
+
         let fileLabelA = LibraryFileLabel(
             title: "Wingding Everest Dialog Network",
             udcCall: "004.52-•-MC-WEDN v12 n92 g88 w00 zaqt",
@@ -183,9 +195,9 @@ class MCxPrintCoreTests: XCTestCase {
         let page = LibraryFilePage(labels: labelArray)
         
         let pageSvg = page.svg(framed: false)
-        try? pageSvg.write(to: spoolTestUrl.appendingPathComponent("TestLibraryFilePage.svg"), atomically: false, encoding: .utf8)
-        let printJob = PrintJob()
-        printJob.svgToPdf(basename: "TestLibraryFilePage")
+        try? pageSvg.write(to: cachedUrl.appendingPathComponent("TestLibraryFilePage.svg"), atomically: false, encoding: .utf8)
+        
+        queue.svgToPdf(basename: "TestLibraryFilePage")
         
         // write to and read from spool directory
         if let spoolUrlA = fileLabelA.spoolWrite(),
@@ -229,24 +241,25 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testFilterToSvgAscii() {
+        let testScratchUrl = URL(fileURLWithPath: "/var/spool/mcxprint_spool/test/scratch", isDirectory: true)
         do {
             let str = "it's"
             
             let svgPreFilter = "it's \\ < > & \" ⌘ ⭐️"
             let svgPostFilter = svgPreFilter.filteringToSvgAscii()
             try svgPostFilter.write(
-                to: spoolTestUrl.appendingPathComponent("00_filtered.txt"), 
+                to: testScratchUrl.appendingPathComponent("00_filtered.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.utf8)
             
             try str.write(
-                to: spoolTestUrl.appendingPathComponent("01_utf8.txt"), 
+                to: testScratchUrl.appendingPathComponent("01_utf8.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.utf8)
             // it's
             
             try str.write(
-                to: spoolTestUrl.appendingPathComponent("02_ascii.txt"), 
+                to: testScratchUrl.appendingPathComponent("02_ascii.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.ascii)
             // it's
@@ -260,7 +273,7 @@ class MCxPrintCoreTests: XCTestCase {
             )
             let svglabelStr: String = label.svg()
             try svglabelStr.write(
-                to: spoolTestUrl.appendingPathComponent("03_label.txt"), 
+                to: testScratchUrl.appendingPathComponent("03_label.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.utf8)
             // it\'s
@@ -268,7 +281,7 @@ class MCxPrintCoreTests: XCTestCase {
             var svgAddText = ""
             svgAddText.svgAddText(text: "it's", x: 0.0, y: 0.0)
             try svgAddText.write(
-                to: spoolTestUrl.appendingPathComponent("04_addtext.txt"), 
+                to: testScratchUrl.appendingPathComponent("04_addtext.txt"), 
                 atomically: false, 
                 encoding: String.Encoding.utf8)
             // it\'s

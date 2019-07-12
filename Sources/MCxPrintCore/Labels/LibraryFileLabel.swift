@@ -10,6 +10,8 @@ import Foundation
 /// * Standard hanging folder tab has vertical visibility of about 42 points.
 public struct LibraryFileLabel: Codable {
     
+    static var queue = MCxPrintQueue("/var/spool/mcxprint_spool/labelfile", batchSize: 2)
+    
     //"title": "Wingding Everest Dialog Network",
     let title: String
     //"udcCall": "004.52-•-MC-WEDN",
@@ -155,8 +157,7 @@ public struct LibraryFileLabel: Codable {
     public func spoolWrite() -> URL? {
         let datestamp = DateTimeUtil.getSpoolTimestamp()
         let filename = "\(self.udcCall)_\(datestamp)"
-        let fileUrl = spoolUrl
-            .appendingPathComponent("labelfile")
+        let fileUrl = LibraryFileLabel.queue.spool.stage.cached
             .appendingPathComponent(filename)
             .appendingPathExtension("json")
         

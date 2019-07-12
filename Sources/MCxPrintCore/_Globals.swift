@@ -7,11 +7,6 @@
 
 import Foundation
 
-internal let spoolUrl = URL(fileURLWithPath: "/var/spool/mcxprint_spool", isDirectory: true)
-
-internal let spoolTestPath = "/var/spool/mcxprint_spool/test"
-internal let spoolTestUrl = URL(fileURLWithPath: spoolTestPath, isDirectory: true)
-
 internal let fontmetricsDirUrl = URL(fileURLWithPath: "/opt/local/fontmetrics", isDirectory: true)
 
 ///////////////////////
