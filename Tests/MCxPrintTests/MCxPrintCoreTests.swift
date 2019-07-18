@@ -25,9 +25,9 @@ class MCxPrintCoreTests: XCTestCase {
     }
 
     func testInventoryPartLabel() {
-        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
+        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
         InventoryPartLabel.queue = queue
-        let cachedUrl = queue.spool.stage.cached
+        let cachedUrl = queue.stage2SvgUrl
 
         let partA = InventoryPartLabel(
             name: "Resistor",
@@ -51,9 +51,9 @@ class MCxPrintCoreTests: XCTestCase {
     }
 
     func testLibraryBookLabel() {
-        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
+        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
         LibraryBookLabel.queue = queue
-        let cachedUrl = queue.spool.stage.cached
+        let cachedUrl = queue.stage2SvgUrl
 
         let labelBookA = LibraryBookLabel(
             udcCall: "004.52-•-MC-WEDN",
@@ -96,8 +96,8 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testFontMetricsPage() {
-        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
-        let cachedUrl = queue.spool.stage.cached
+        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
+        let cachedUrl = queue.stage2SvgUrl
 
         // ------------------
         // -- Font Metrics --
@@ -120,9 +120,7 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testLibraryFilePage() {
-        let queue = MCxPrintQueue("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
-        LibraryFileLabel.queue = queue
-        let cachedUrl = queue.spool.stage.cached
+        let spool = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
 
         let fileLabelA = LibraryFileLabel(
             title: "Wingding Everest Dialog Network",
@@ -195,14 +193,14 @@ class MCxPrintCoreTests: XCTestCase {
         let page = LibraryFilePage(labels: labelArray)
         
         let pageSvg = page.svg(framed: false)
-        try? pageSvg.write(to: cachedUrl.appendingPathComponent("TestLibraryFilePage.svg"), atomically: false, encoding: .utf8)
+        try? pageSvg.write(to: spool.stage2SvgUrl.appendingPathComponent("TestLibraryFilePage.svg"), atomically: false, encoding: .utf8)
         
-        queue.svgToPdf(basename: "TestLibraryFilePage")
+        spool.svgToPdf(basename: "TestLibraryFilePage")
         
         // write to and read from spool directory
-        if let spoolUrlA = fileLabelA.spoolWrite(),
-            let spoolUrlB = fileLabelB.spoolWrite(),
-            let spoolUrlC = fileLabelC.spoolWrite()
+        if let spoolUrlA = fileLabelA.spoolWrite(spool: spool),
+            let spoolUrlB = fileLabelB.spoolWrite(spool: spool),
+            let spoolUrlC = fileLabelC.spoolWrite(spool: spool)
         {
             print("spoolUrlA: \(spoolUrlA.path)")
             print("spoolUrlB: \(spoolUrlB.path)")

@@ -10,7 +10,7 @@ import Foundation
 // migrate from TagBookRecord: Codable
 public struct LibraryBookLabel: Codable {
     
-    static var queue = MCxPrintQueue("/var/spool/mcxprint_spool/labelbook", batchSize: 1)
+    static var queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/labelbook", batchSize: 1)
     
     //"udcCall" : "004.52-•-MC-WEDN",
     let udcCall: String
@@ -159,7 +159,7 @@ public struct LibraryBookLabel: Codable {
     public func spoolWrite() -> URL? {
         let datestamp = DateTimeUtil.getSpoolTimestamp()
         let filename = "\(self.udcCall)_\(datestamp)"
-        let fileUrl = LibraryBookLabel.queue.spool.stage.cached
+        let fileUrl = LibraryBookLabel.queue.stage2SvgUrl
             .appendingPathComponent(filename)
             .appendingPathExtension("json")
         

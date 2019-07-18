@@ -1,5 +1,5 @@
 //
-//  PrintJob.swift
+//  MCxPrintSpoolManager.swift
 //  MCxPrintCore
 //
 //  Created by marc on 2019.06.13.
@@ -7,25 +7,118 @@
 
 import Foundation
 
-public struct MCxPrintSpoolDiskClassic {
+// 
+public struct MCxPrintSpoolManager {
 
-    public let spool: MCxPrintSpoolClassic
     let batchSize: Int
+    //
+    public let rootUrl: URL
+    public let stage1JsonUrl: URL
+    public let stage2SvgUrl: URL
+    public let stage3PdfUrl: URL
+    public let stage4PrintedUrl: URL
     
     /// root url directory contains stage2SvgUrl/, stage3PdfUrl/, stage4PrintedUrl/ subdirectories.
     public init(_ rootPath: String, batchSize: Int) {
-        self.spool = MCxPrintSpoolClassic(rootPath)
         self.batchSize = batchSize
+        //
+        self.rootUrl = URL(fileURLWithPath: rootPath, isDirectory: true)
+        self.stage1JsonUrl = rootUrl.appendingPathComponent(
+            "stage1json",
+            isDirectory: true)
+        self.stage2SvgUrl = rootUrl.appendingPathComponent(
+            "stage2svg",
+            isDirectory: true)
+        self.stage3PdfUrl = rootUrl.appendingPathComponent(
+            "stage3pdf",
+            isDirectory: true)
+        self.stage4PrintedUrl = rootUrl.appendingPathComponent(
+            "stage4printed",
+            isDirectory: true)
     }
     
-    public func stage1_findCachedSvgFilesToConvert() -> (readyUrls: [URL], remainderUrl: [URL])? {
+    public func processStage1Json() {
+        
+    }
+    
+    public func getJobNames(stage: MCxPrintSpoolStage) -> [String] {
+        var readyJobNames = [String]()
+        var remainderJobNames = [String]()
+        do {
+            let fm = FileManager.default
+            let cachedUrls = try fm.contentsOfDirectory(
+                at: self.stage2SvgUrl, 
+                includingPropertiesForKeys: [URLResourceKey.isRegularFileKey], 
+                options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
+            
+            for fileUrl in cachedUrls {
+                if fileUrl.pathExtension == stage.fileExtension() {
+                    if remainderJobNames.count + 1 == batchSize {
+                        for rurl in remainderJobNames {
+                            readyJobNames.append(rurl)
+                        }
+                        remainderJobNames.removeAll()
+                        readyJobNames.append(fileUrl.deletingPathExtension().lastPathComponent)
+                    }
+                    else {
+                        remainderJobNames.append(fileUrl.deletingPathExtension().lastPathComponent)
+                    }
+                    
+                }
+            }
+            return readyJobNames
+        } 
+        catch {
+            print(":ERROR:AknowtzPrintSpool:getJobNames(): \(error)")
+            return readyJobNames
+        }
+    }
+    
+    public func findStageFileUrls(stage: MCxPrintSpoolStage) -> [URL] {
+        var readyUrls = [URL]()
+        var remainderUrls = [URL]()
+        do {            
+            let fm = FileManager.default
+            let cachedUrls = try fm.contentsOfDirectory(
+                at: self.stage2SvgUrl, 
+                includingPropertiesForKeys: [URLResourceKey.isRegularFileKey], 
+                options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
+            
+            for fileUrl in cachedUrls {
+                if fileUrl.pathExtension == stage.fileExtension() {
+                    if remainderUrls.count + 1 == batchSize {
+                        for rurl in remainderUrls {
+                            readyUrls.append(rurl)
+                        }
+                        remainderUrls.removeAll()
+                        readyUrls.append(fileUrl)
+                    }
+                    else {
+                        remainderUrls.append(fileUrl)
+                    }
+                    
+                }
+            } 
+            return readyUrls
+        } 
+        catch {
+            print(":ERROR: AknowtzPrintSpool findStage2SvgFiles() \(error)")
+            return readyUrls
+        }
+    }
+    
+    public func processStage2Svg() {
+
+    }
+    
+    public func findStage2SvgFiles() -> (readyUrls: [URL], remainderUrl: [URL])? {
         do {
             var readyUrls = [URL]()
             var remainderUrls = [URL]()
             
             let fm = FileManager.default
             let cachedUrls = try fm.contentsOfDirectory(
-                at: self.spool.stage2SvgUrl, 
+                at: self.stage2SvgUrl, 
                 includingPropertiesForKeys: [URLResourceKey.isRegularFileKey], 
                 options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
 
@@ -47,15 +140,15 @@ public struct MCxPrintSpoolDiskClassic {
             return (readyUrls, remainderUrls)
         } 
         catch {
-            print(":ERROR: AknowtzPrintSpool stage1_findCachedSvgFilesToConvert() \(error)")
+            print(":ERROR: AknowtzPrintSpool findStage2SvgFiles() \(error)")
             return nil
         }
     }
     
     /// returns list of file URLs which have been stage3PdfUrl
-    public func stage2_convertCachedSvgFilesToPdf(_ urls: [URL]) -> [URL] {
+    public func processStage2SvgToPdf(_ urls: [URL]) -> [URL] {
         var result = [URL]()
-        guard let filesToConvert = stage1_findCachedSvgFilesToConvert() else {
+        guard let filesToConvert = findStage2SvgFiles() else {
             return result
         }
         //
@@ -66,7 +159,7 @@ public struct MCxPrintSpoolDiskClassic {
             do {
                 let fm = FileManager.default
                 // move svg
-                let svgToUrl = self.spool.stage3PdfUrl
+                let svgToUrl = self.stage3PdfUrl
                     .appendingPathComponent(
                         svgFileUrl.lastPathComponent, 
                         isDirectory: false
@@ -75,26 +168,26 @@ public struct MCxPrintSpoolDiskClassic {
                 // move pdf
                 let pdfFromUrl = svgFileUrl.deletingPathExtension()
                     .appendingPathExtension("pdf")
-                let pdfToUrl = self.spool.stage3PdfUrl
+                let pdfToUrl = self.stage3PdfUrl
                     .appendingPathComponent(pdfFromUrl.lastPathComponent, isDirectory: true)
                 try fm.moveItem(at: pdfFromUrl, to: pdfToUrl)
                 
                 result.append(pdfToUrl)
             }
             catch {
-                print(":ERROR: stage2_convertCachedSvgFilesToPdf failed to move file related to \(svgFileUrl) \(error)")
+                print(":ERROR: processStage2SvgToPdf failed to move file related to \(svgFileUrl) \(error)")
             }
         }
         return result
     }
     
     /// returns existing PDF files in /stage3PdfUrl/ directory
-    public func stage3_findConvertedPdfFiles() -> [URL] {
+    public func findStage3PdfFiles() -> [URL] {
         var readyUrls = [URL]()
         do {
             let fm = FileManager.default
             let cachedBookLabels = try fm.contentsOfDirectory(
-                at: self.spool.stage3PdfUrl, 
+                at: self.stage3PdfUrl, 
                 includingPropertiesForKeys: [URLResourceKey.isRegularFileKey], 
                 options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
             for fileUrl in cachedBookLabels {
@@ -105,14 +198,14 @@ public struct MCxPrintSpoolDiskClassic {
             return readyUrls
         } 
         catch {
-            print(":ERROR: AknowtzPrintSpool stage3_findConvertedPdfFiles() \(error)")
+            print(":ERROR: AknowtzPrintSpool findStage3PdfFiles() \(error)")
             return readyUrls
         }
     }
     
-    public func stage4_printConvertedPdfFiles(_ urls: [URL]) -> [URL] {
+    public func processStage3PdfToPrinter(_ urls: [URL]) -> [URL] {
         var result = [URL]()
-        guard let filesToConvert = stage1_findCachedSvgFilesToConvert() else {
+        guard let filesToConvert = findStage2SvgFiles() else {
             return result
         }
         //
@@ -122,7 +215,7 @@ public struct MCxPrintSpoolDiskClassic {
             do {
                 let fm = FileManager.default
                 // move pdf
-                let pdfToUrl = self.spool.stage4PrintedUrl
+                let pdfToUrl = self.stage4PrintedUrl
                     .appendingPathComponent(
                         pdfFileUrl.lastPathComponent, 
                         isDirectory: false
@@ -132,14 +225,14 @@ public struct MCxPrintSpoolDiskClassic {
                 result.append(pdfToUrl)
             }
             catch {
-                print(":ERROR: stage4_printConvertedPdfFiles failed to move file \(pdfFileUrl) \(error)")
+                print(":ERROR: processStage3PdfToPrinter failed to move file \(pdfFileUrl) \(error)")
             }
         }
         return result
     }
     
     public func svgToPdf(basename: String) {
-        let cachedUrl = self.spool.stage2SvgUrl
+        let cachedUrl = self.stage2SvgUrl
         let inputSvgPath = cachedUrl.appendingPathComponent("\(basename).svg", isDirectory: false).path
         let outputPdfPath = cachedUrl.appendingPathComponent("\(basename).pdf", isDirectory: false).path
         
