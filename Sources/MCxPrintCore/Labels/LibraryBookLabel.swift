@@ -8,9 +8,9 @@
 import Foundation
 
 // migrate from TagBookRecord: Codable
-public struct LibraryBookLabel: Codable {
+public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
     
-    static var queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/labelbook", batchSize: 1)
+    // static var queue = MCxPrintSpool("/var/spool/mcxprint_spool/labelbook", batchSize: 1, svgSpooler: LibraryBookLabel.self, jsonSpooler: LibraryBookLabel.self)
     
     //"udcCall" : "004.52-•-MC-WEDN",
     let udcCall: String
@@ -20,30 +20,107 @@ public struct LibraryBookLabel: Codable {
     let collectionSID: String
     
     var description: String {
-        return toJsonStr() ?? "nil"
+        return toSpoolJsonStr() ?? "nil"
     }
-
+    
     public init(udcCall: String, udcLabel: String, collectionSID: String) {
         self.udcCall = udcCall
         self.udcLabel = udcLabel
         self.collectionSID = collectionSID
     }
     
-    public init(jsonFileUrl: URL) throws {
+    // /////////////////////////////
+    // MARK: - MCxPrintJsonSpoolable
+    // /////////////////////////////
+    
+    public func spoolAddStage1Json(spool: MCxPrintSpoolProtocol) -> URL? {
+        return spool.spoolAddStage1Json(item: self)
+    }
+    
+    /// Spool Job Basename
+    public func toSpoolJobBasename() -> String {
+        return self.udcCall
+    }
+    
+    public func toSpoolJsonData() -> Data? {
         do {
-            let data = try Data(contentsOf: jsonFileUrl)
-            let decoder = JSONDecoder()
-            let temp = try decoder.decode(LibraryBookLabel.self, from: data)
-            self.udcCall = temp.udcCall
-            self.udcLabel = temp.udcLabel
-            self.collectionSID = temp.collectionSID
+            let encoder = JSONEncoder()
+            let data: Data = try encoder.encode(self)
+            return data
         } catch {
-            print(":ERROR: LibraryFileLable init() failed url=\(jsonFileUrl) error=\(error)" )
+            print(":ERROR: LibraryFileLabel toSpoolJsonData() \(error)")
+        }
+        return nil
+    }
+    
+    public func toSpoolJsonStr() -> String? {
+        if let d = toSpoolJsonData() {
+            return String(data: d, encoding: String.Encoding.utf8)
+        }
+        return nil
+    }
+    
+    // ////////////////////////////
+    // MARK: - MCxPrintSvgSpoolable
+    // ////////////////////////////
+    
+    public init(itemBlocks: [LibraryBookLabel]) throws {
+        if itemBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        let item = itemBlocks[0]
+        self.init(
+            udcCall: item.udcCall, 
+            udcLabel: item.udcLabel, 
+            collectionSID: item.collectionSID
+        )
+    }
+    
+    public init(jsonDataBlocks: [Data]) throws {
+        if jsonDataBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        let jsonData = jsonDataBlocks[0]
+        var item: LibraryBookLabel!
+        do {
+            let decoder = JSONDecoder()
+            item = try decoder.decode(LibraryBookLabel.self, from: jsonData)
+        } 
+        catch {
+            print(":ERROR: LibraryBookLabel init(jsonDataBlocks) JSON decode failed =\(error)" )
+            throw MCxPrint.Error.failedToInitializeSpoolable
+        }
+        try self.init(itemBlocks: [item])
+    }
+    
+    public init(jsonStrBlocks: [String]) throws {
+        if jsonStrBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        let jsonStr = jsonStrBlocks[0]
+        guard let data = jsonStr.data(using: String.Encoding.utf8) 
+            else {
+                throw MCxPrint.Error.failedToInitializeSpoolable 
+        }
+        try self.init(jsonDataBlocks: [data])
+    }
+    
+    public init(jsonUrlBlocks: [URL]) throws {
+        if jsonUrlBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        let jsonUrl = jsonUrlBlocks[0]
+        do {
+            let data = try Data(contentsOf: jsonUrl)
+            try self.init(jsonDataBlocks: [data])
+        } 
+        catch {
+            print(":ERROR: LibraryBookLabel init() failed url=\(jsonUrl) error=\(error)" )
             throw MCxPrint.Error.failedToLoadFile
         }
     }
     
-    public func svg() -> String {
+    public func jsonBatchAllowedSizes() -> [Int] {
+        return [1]
+    }
+    
+    public func jsonBatchSupportsPartials() -> Bool {
+        return false
+    }
+    
+    public func toSpoolSvgStr() -> String {
         let wxhLandscape = PrintTemplate.PaperPointRect.ptouchLandscape
         //
         let ptsCallLeft: CGFloat = 46.0
@@ -138,45 +215,8 @@ public struct LibraryBookLabel: Codable {
         return s
     }
     
-    public func toJsonData() -> Data? {
-        do {
-            let encoder = JSONEncoder()
-            let data: Data = try encoder.encode(self)
-            return data
-        } catch {
-            print(":ERROR: LibraryFileLabel toJsonData() \(error)")
-        }
-        return nil
+    public func spoolAddStage2Svg(spool: MCxPrintSpoolProtocol) -> URL? {
+        return spool.spoolAddStage2Svg(item: self)
     }
-    
-    public func toJsonStr() -> String? {
-        if let d = toJsonData() {
-            return String(data: d, encoding: String.Encoding.utf8)
-        }
-        return nil
-    }
-    
-    public func spoolWrite() -> URL? {
-        let datestamp = DateTimeUtil.getSpoolTimestamp()
-        let filename = "\(self.udcCall)_\(datestamp)"
-        let fileUrl = LibraryBookLabel.queue.stage2SvgUrl
-            .appendingPathComponent(filename)
-            .appendingPathExtension("json")
-        
-        do {
-            guard let data = self.toJsonData() 
-                else {
-                    print("ERROR: LibraryBookLabel failed generate JSON '\(self.description)'")
-                    return nil
-            }
-            let url = fileUrl
-            try data.write(to: url)
-            return fileUrl
-        } 
-        catch {
-            print("ERROR: LibraryBookLabel failed to save :: '\(fileUrl.lastPathComponent)' :: \(error)")
-            return nil
-        }
-    }
-    
+
 }
