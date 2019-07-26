@@ -1,5 +1,5 @@
 //
-//  MCxPrintSpoolManager.swift
+//  MCxPrintSpool.swift
 //  MCxPrintCore
 //
 //  Created by marc on 2019.06.13.
@@ -7,11 +7,19 @@
 
 import Foundation
 
-// 
-public struct MCxPrintSpoolManager {
+/// public struct MCxPrintSpoolManager
+///
+/// * rootUrl/
+///     * stage1JsonUrl/
+///     * stage2SvgUrl/
+///     * stage3PdfUrl/
+///     * stage4PrintedUrl/
+public struct MCxPrintSpool {
 
     let batchSize: Int
-    //
+    
+    /// 
+    ///
     public let rootUrl: URL
     public let stage1JsonUrl: URL
     public let stage2SvgUrl: URL
@@ -41,7 +49,7 @@ public struct MCxPrintSpoolManager {
         
     }
     
-    public func getJobNames(stage: MCxPrintSpoolStage) -> [String] {
+    public func getJobNames(stage: MCxPrintSpoolStageType) -> [String] {
         var readyJobNames = [String]()
         var remainderJobNames = [String]()
         do {
@@ -74,7 +82,7 @@ public struct MCxPrintSpoolManager {
         }
     }
     
-    public func findStageFileUrls(stage: MCxPrintSpoolStage) -> [URL] {
+    public func findStageFileUrls(stage: MCxPrintSpoolStageType) -> [URL] {
         var readyUrls = [URL]()
         var remainderUrls = [URL]()
         do {            

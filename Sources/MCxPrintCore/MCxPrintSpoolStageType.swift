@@ -1,5 +1,5 @@
 //
-//  MCxPrintSpoolStage.swift
+//  MCxPrintSpoolStageType.swift
 //  MCxPrintCore
 //
 //  Created by marc on 2019.07.13.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum MCxPrintSpoolStage {
+public enum MCxPrintSpoolStageType {
     /// Batch grouping (e.g.) occurs during the processing of stage1Json. 
     case stage1Json
     /// SVG layouts are "print media ready" at this time.

@@ -19,7 +19,7 @@ class MCxPrintSpoolTests: XCTestCase {
     }
 
     func testLibraryFilelabelRemainder1Page() {
-        let spool = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelfile", batchSize: 1)
+        let spool = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelfile", batchSize: 1)
         
         let fileLabel = LibraryFileLabel(
             title: "Business: Let's Go Do It",

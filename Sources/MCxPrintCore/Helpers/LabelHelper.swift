@@ -19,7 +19,7 @@ struct LabelHelper {
         // 1.234 decimal position = 1
         // 12.34 decimal position = 2
         // 123.4 decimal position = 3
-        guard let index = inStr.index(of: ".") else {
+        guard let index = inStr.firstIndex(of: ".") else {
             print("udcNumberToLine(udcStr) missing decimal: \(udcStr)")
             fatalError()
         }

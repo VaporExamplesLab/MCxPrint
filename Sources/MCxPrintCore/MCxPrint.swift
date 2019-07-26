@@ -29,8 +29,10 @@ public extension MCxPrint {
     enum Error: Swift.Error {
         case missingFirstArgument
         case failedToCreateFile
+        case failedToInitializeSpoolable
         case failedToLoadFile
         case fontNotFound
+        case unsupportedBatchSize
     }
 }
 

@@ -44,7 +44,7 @@ public struct LibraryFileLabel: Codable {
             self.collectionSID = temp.collectionSID
             self.collectionColor = temp.collectionColor
         } catch {
-            print(":ERROR: LibraryFileLable init() failed url=\(jsonFileUrl) error=\(error)" )
+            print(":ERROR: LibraryFileLabel init() failed url=\(jsonFileUrl) error=\(error)" )
             throw MCxPrint.Error.failedToLoadFile
         }
     }
@@ -140,7 +140,7 @@ public struct LibraryFileLabel: Codable {
             let data: Data = try encoder.encode(self)
             return data
         } catch {
-            print(":ERROR: LibraryFileLabel toJsonData() \(error)")
+            print(":ERROR: LibraryFileLabel toSpoolJsonData() \(error)")
         }
         return nil
     }
@@ -152,7 +152,7 @@ public struct LibraryFileLabel: Codable {
         return nil
     }
     
-    public func spoolWrite(spool: MCxPrintSpoolManager, stage: MCxPrintSpoolStage = .stage1Json) -> URL? {
+    public func spoolWrite(spool: MCxPrintSpool, stage: MCxPrintSpoolStageType = .stage1Json) -> URL? {
         let datestamp = DateTimeUtil.getSpoolTimestamp()
         let filename = "\(self.udcCall)_\(datestamp)"
         let fileUrl = spool.stage2SvgUrl

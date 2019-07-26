@@ -25,7 +25,7 @@ class MCxPrintCoreTests: XCTestCase {
     }
 
     func testInventoryPartLabel() {
-        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
+        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
         InventoryPartLabel.queue = queue
         let cachedUrl = queue.stage2SvgUrl
 
@@ -51,7 +51,7 @@ class MCxPrintCoreTests: XCTestCase {
     }
 
     func testLibraryBookLabel() {
-        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
+        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
         LibraryBookLabel.queue = queue
         let cachedUrl = queue.stage2SvgUrl
 
@@ -76,8 +76,8 @@ class MCxPrintCoreTests: XCTestCase {
         queue.svgToPdf(basename: "TestBookB")
         
         // write to and read from spool directory
-        if let spoolBookUrlA = labelBookA.spoolWrite(),
-            let spoolBookUrlB = labelBookB.spoolWrite()
+        if let spoolBookUrlA = labelBookA.spoolAdd(),
+            let spoolBookUrlB = labelBookB.spoolAdd()
         {
             print("spoolBookUrlA: \(spoolBookUrlA.path)")
             print("spoolBookUrlB: \(spoolBookUrlB.path)")
@@ -96,7 +96,7 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testFontMetricsPage() {
-        let queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
+        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
         let cachedUrl = queue.stage2SvgUrl
 
         // ------------------
@@ -120,7 +120,7 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testLibraryFilePage() {
-        let spool = MCxPrintSpoolManager("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
+        let spool = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
 
         let fileLabelA = LibraryFileLabel(
             title: "Wingding Everest Dialog Network",

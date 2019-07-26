@@ -9,9 +9,7 @@ import Foundation
 
 // migrate from TagBookRecord: Codable
 public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
-    
-    // static var queue = MCxPrintSpool("/var/spool/mcxprint_spool/labelbook", batchSize: 1, svgSpooler: LibraryBookLabel.self, jsonSpooler: LibraryBookLabel.self)
-    
+
     //"udcCall" : "004.52-•-MC-WEDN",
     let udcCall: String
     //"udcLabel" : "Generic Labels - SVG Layout Example",
@@ -27,6 +25,16 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
         self.udcCall = udcCall
         self.udcLabel = udcLabel
         self.collectionSID = collectionSID
+    }
+    
+    public init(itemBlocks: [LibraryBookLabel]) throws {
+        if itemBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        let item = itemBlocks[0]
+        self.init(
+            udcCall: item.udcCall, 
+            udcLabel: item.udcLabel, 
+            collectionSID: item.collectionSID
+        )
     }
     
     // /////////////////////////////
@@ -63,17 +71,7 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
     // ////////////////////////////
     // MARK: - MCxPrintSvgSpoolable
     // ////////////////////////////
-    
-    public init(itemBlocks: [LibraryBookLabel]) throws {
-        if itemBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
-        let item = itemBlocks[0]
-        self.init(
-            udcCall: item.udcCall, 
-            udcLabel: item.udcLabel, 
-            collectionSID: item.collectionSID
-        )
-    }
-    
+        
     public init(jsonDataBlocks: [Data]) throws {
         if jsonDataBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
         let jsonData = jsonDataBlocks[0]
@@ -112,14 +110,14 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
         }
     }
     
-    public func jsonBatchAllowedSizes() -> [Int] {
+    public static func jsonBatchAllowedSizes() -> [Int] {
         return [1]
     }
     
-    public func jsonBatchSupportsPartials() -> Bool {
+    public static func jsonBatchSupportsPartials() -> Bool {
         return false
     }
-    
+        
     public func toSpoolSvgStr() -> String {
         let wxhLandscape = PrintTemplate.PaperPointRect.ptouchLandscape
         //

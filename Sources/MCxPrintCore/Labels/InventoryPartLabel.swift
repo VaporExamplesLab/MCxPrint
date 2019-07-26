@@ -10,8 +10,6 @@ import Foundation
 /// Migrate from TagPartRecord.swift
 public struct InventoryPartLabel: Codable {
     
-    static var queue = MCxPrintSpoolManager("/var/spool/mcxprint_spool/labelpart", batchSize: 1)
-    
     //"name" : "Resistor", "9DOF Sensor"
     let name: String
     //"value": "100K", "Adafruit-12345"
