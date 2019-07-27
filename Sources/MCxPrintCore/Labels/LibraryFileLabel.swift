@@ -8,8 +8,8 @@
 import Foundation
 
 /// * Standard hanging folder tab has vertical visibility of about 42 points.
-public struct LibraryFileLabel: Codable {
-    
+public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
+
     //"title": "Wingding Everest Dialog Network",
     let title: String
     //"udcCall": "004.52-•-MC-WEDN",
@@ -22,7 +22,7 @@ public struct LibraryFileLabel: Codable {
     let collectionColor: LabelColorTheme
     
     var description: String {
-        return toJsonStr() ?? "nil"
+        return toSpoolJsonStr() ?? "nil"
     }
     
     public init(title: String, udcCall: String, udcLabel: String, collectionSID: String, collectionColor: LabelColorTheme) {
@@ -134,7 +134,19 @@ public struct LibraryFileLabel: Codable {
         return s
     }
     
-    public func toJsonData() -> Data? {
+    // /////////////////////////////
+    // MARK: - MCxPrintJsonSpoolable
+    // /////////////////////////////
+    
+    public func spoolAddStage1Json(spool: MCxPrintSpoolProtocol) -> URL? {
+        return spool.spoolAddStage1Json(item: self)
+    }
+    
+    public func toSpoolJobBasename() -> String {
+        return self.udcCall
+    }
+    
+    public func toSpoolJsonData() -> Data? {
         do {
             let encoder = JSONEncoder()
             let data: Data = try encoder.encode(self)
@@ -145,35 +157,13 @@ public struct LibraryFileLabel: Codable {
         return nil
     }
     
-    public func toJsonStr() -> String? {
-        if let d = toJsonData() {
+    public func toSpoolJsonStr() -> String? {
+        if let d = toSpoolJsonData() {
             return String(data: d, encoding: String.Encoding.utf8)
         }
         return nil
     }
-    
-    public func spoolWrite(spool: MCxPrintSpool, stage: MCxPrintSpoolStageType = .stage1Json) -> URL? {
-        let datestamp = DateTimeUtil.getSpoolTimestamp()
-        let filename = "\(self.udcCall)_\(datestamp)"
-        let fileUrl = spool.stage2SvgUrl
-            .appendingPathComponent(filename)
-            .appendingPathExtension("json")
-        
-        do {
-            guard let data = self.toJsonData() 
-                else {
-                    print("ERROR: LibraryFileLabel failed generate JSON '\(self.description)'")
-                    return nil
-            }
-            let url = fileUrl
-            try data.write(to: url)
-            return fileUrl
-        } 
-        catch {
-            print("ERROR: LibraryFileLabel failed to save '\(fileUrl.lastPathComponent)' \n\(error)")
-            return nil
-        }
-    }
+
     
 }
 

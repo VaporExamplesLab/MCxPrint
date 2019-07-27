@@ -7,7 +7,8 @@
 
 import Foundation
 
-public struct FontMetricsPage {
+public struct FontMetricsPage: MCxPrintJsonSpoolable, MCxPrintSvgSpoolable {
+
     // Key Independent Parameters
     // .dejaVuCondensed, .mswImpact .gaugeRegular
     let fontFamily  = FontHelper.PostscriptName.gaugeHeavy
@@ -25,7 +26,7 @@ public struct FontMetricsPage {
         self.font = FontPointFamilyMetrics.fileLoad(fontFamily: fontFamily, fontSize: fontSize)!
     }
     
-    public func svg() -> String {
+    private func svg() -> String {
         let baselineX = 0.15 * page.width
         let baselineY = 0.20 * page.height
         let ascentY = baselineY - font.ptsAscent
@@ -218,6 +219,58 @@ public struct FontMetricsPage {
         s.svgAddRect(x: page.width - oneInch, y: page.height - oneInch, width: oneInch, height: oneInch, stroke: "black", strokeWidth: 0.25)
         
         return s
+    }
+    
+    // /////////////////////////////
+    // MARK: - MCxPrintJsonSpoolable
+    // /////////////////////////////
+    
+    public func spoolAddStage1Json(spool: MCxPrintSpoolProtocol) -> URL? {
+        fatalError(":NYI: FontMetricsPage spoolAddStage1Json()")
+    }
+    
+    public func toSpoolJobBasename() -> String {
+        return "TestFontMetricsPage"
+    }
+    
+    public func toSpoolJsonData() -> Data? {
+        fatalError(":NYI: FontMetricsPage toSpoolJsonData()")
+    }
+    
+    public func toSpoolJsonStr() -> String? {
+        fatalError(":NYI: FontMetricsPage toSpoolJsonStr()")
+    }
+    
+    // ////////////////////////////
+    // MARK: - MCxPrintSvgSpoolable
+    // ////////////////////////////
+    
+    public init(jsonDataBlocks: [Data]) throws {
+        self.init()
+    }
+    
+    public init(jsonStrBlocks: [String]) throws {
+        self.init()
+    }
+    
+    public init(jsonUrlBlocks: [URL]) throws {
+        self.init()
+    }
+    
+    public static func jsonBatchAllowedSizes() -> [Int] {
+        return [1]
+    }
+    
+    public static func jsonBatchSupportsPartials() -> Bool {
+        return false
+    }
+    
+    public func toSpoolSvgStr() -> String {
+        return self.svg()
+    }
+    
+    public func spoolAddStage2Svg(spool: MCxPrintSpoolProtocol) -> URL? {
+        return spool.spoolAddStage2Svg(item: self)
     }
     
 }

@@ -21,12 +21,11 @@ import Foundation
 ///
 public class DateTimeUtil {
     
-    
-    ///  - Returns: **now** as "dd_HHmmss_S"
+    ///  - Returns: **now** as "dd_HHmmss_SSS"
     public static func getSpoolTimestamp() -> String {
         let currentTime = Date()
         let dateFormatter = DateFormatter() // 
-        let formatStr = "dd_HHmmss_S" // add `z` for zulu.
+        let formatStr = "dd_HHmmss_SSS" // add `z` for zulu.
         dateFormatter.dateFormat = formatStr
         //dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         return dateFormatter.string(from: currentTime)

@@ -8,7 +8,7 @@
 import Foundation
 
 /// provides a page for 1x18, 2x9 or 3x6 label layout
-public struct LibraryFilePage {
+public struct LibraryFilePage: MCxPrintSvgSpoolable {
     
     /// left-to-right, top-to-bottom label sequence
     let labelSequence = [
@@ -22,7 +22,10 @@ public struct LibraryFilePage {
     
     let labels: [LibraryFileLabel]
     
-    init(labels: [LibraryFileLabel]) {
+    init(labels: [LibraryFileLabel]) throws {
+        if LibraryFilePage.jsonBatchAllowedSizes().contains(labels.count) == false {
+            throw MCxPrint.Error.unsupportedBatchSize 
+        }
         self.labels = labels
     }
     
@@ -75,6 +78,55 @@ public struct LibraryFilePage {
         return s
     }
     
+    // ////////////////////////////
+    // MARK: - MCxPrintSvgSpoolable
+    // ////////////////////////////
+    
+    public init(jsonDataBlocks: [Data]) throws {
+        if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonDataBlocks.count) == false {
+            throw MCxPrint.Error.unsupportedBatchSize 
+        }
+        fatalError(":NYI: init(jsonDataBlocks: [Data]) not supported ")
+    }
+    
+    public init(jsonStrBlocks: [String]) throws {
+        if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonStrBlocks.count) == false {
+            throw MCxPrint.Error.unsupportedBatchSize 
+        }
+        fatalError(":NYI: init(jsonStrBlocks: [String]) not supported ")
+    }
+    
+    public init(jsonUrlBlocks: [URL]) throws {
+        if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonUrlBlocks.count) == false {
+            throw MCxPrint.Error.unsupportedBatchSize 
+        }
+        var itemBlocks = [LibraryFileLabel]()
+        for url in jsonUrlBlocks {
+            let label = try LibraryFileLabel(jsonFileUrl: url)
+            itemBlocks.append(label)
+        }
+        try self.init(labels: itemBlocks)
+    }
+    
+    public static func jsonBatchAllowedSizes() -> [Int] {
+        return [1,2,3,9]
+    }
+    
+    public static func jsonBatchSupportsPartials() -> Bool {
+        return false
+    }
+    
+    public func toSpoolJobBasename() -> String {
+        return labels[0].udcCall
+    }
+    
+    public func toSpoolSvgStr() -> String {
+        return self.svg()
+    }
+    
+    public func spoolAddStage2Svg(spool: MCxPrintSpoolProtocol) -> URL? {
+        return spool.spoolAddStage2Svg(item: self)
+    }
 
     
 }

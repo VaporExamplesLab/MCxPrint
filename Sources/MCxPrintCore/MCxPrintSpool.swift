@@ -28,9 +28,10 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
     // 
     private let jsonSpooler: MCxPrintJsonSpoolable.Type
     private let svgSpooler: MCxPrintSvgSpoolable.Type
+    private let printerName: String
             
     /// root url directory contains stage2SvgUrl/, stage3PdfUrl/, stage4PrintedUrl/ subdirectories.
-    public init(_ rootPath: String, batchSize: Int, jsonSpooler: MCxPrintJsonSpoolable.Type, svgSpooler: MCxPrintSvgSpoolable.Type) throws {
+    public init(_ rootPath: String, batchSize: Int, jsonSpooler: MCxPrintJsonSpoolable.Type, svgSpooler: MCxPrintSvgSpoolable.Type, printerName: String) throws {
         
         let allowedBatchsizes = svgSpooler.jsonBatchAllowedSizes()
         if allowedBatchsizes.contains(batchSize) == false &&
@@ -43,7 +44,6 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
             }            
         } 
         
-
         self.jsonBatchSize = batchSize
         //
         self.rootUrl = URL(fileURLWithPath: rootPath, isDirectory: true)
@@ -62,6 +62,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         
         self.jsonSpooler = jsonSpooler
         self.svgSpooler = svgSpooler
+        self.printerName = printerName
     }
     
     // /////////////
@@ -253,7 +254,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         var pdfOut = [URL]()
         
         for pdfFileUrl in pdfIn.ready {
-            let jobname = pdfFileUrl.deletingLastPathComponent().lastPathComponent
+            let jobname = pdfFileUrl.deletingPathExtension().lastPathComponent
 
             runPdfToPrinter(url: pdfFileUrl)
             
@@ -311,6 +312,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
                 options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
             
             for fileUrl in cachedUrls {
+                if fileUrl.hasDirectoryPath { continue }
                 let filename = fileUrl.lastPathComponent
                 if filename.hasPrefix(prefix) {
                     results.append(fileUrl)
@@ -335,6 +337,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
                 options: [FileManager.DirectoryEnumerationOptions.skipsHiddenFiles])
             
             for fileUrl in cachedUrls {
+                if fileUrl.hasDirectoryPath { continue }
                 if fileUrl.pathExtension == stage.fileExtension() {
                     if remainderUrls.count + 1 == getStageBatchSize(stage: stage) {
                         readyUrls.append(contentsOf: remainderUrls)
@@ -436,23 +439,27 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
             // Move related files into Related Directory.
             let relatedUrls = getJobRelatedUrls(prefix: jobname, stage: stage)
             for srcUrl in relatedUrls {
+                let filename = srcUrl.lastPathComponent
                 if srcUrl.pathExtension == stageOutExtension {
-                    try fm.moveItem(at: srcUrl, to: stageOutUrl) 
-                    let jobfilename = srcUrl.lastPathComponent
-                    movedJobUrl = stageOutUrl.appendingPathComponent(jobfilename, isDirectory: false)
+                    let destUrl = stageOutUrl.appendingPathComponent(filename, isDirectory: false)
+                    try fm.moveItem(at: srcUrl, to: destUrl) 
+                    movedJobUrl = destUrl
                 } 
                 else {
-                    try fm.moveItem(at: srcUrl, to: relatedDirIn) 
+                    let destUrl = relatedDirIn.appendingPathComponent(filename, isDirectory: false)
+                    try fm.moveItem(at: srcUrl, to: destUrl) 
                 }
             }
             
             // Move all related batch files into the Related Directory
             if let batchUrls = batch {
                 for url in batchUrls {
-                    let blockname = url.deletingPathExtension().lastPathComponent
-                    let relatedBatchUrls = getJobRelatedUrls(prefix: blockname, stage: stage)
+                    let blockfilename = url.lastPathComponent
+                    let blockprefix = url.deletingPathExtension().lastPathComponent
+                    let relatedBatchUrls = getJobRelatedUrls(prefix: blockprefix, stage: stage)
                     for rbUrl in relatedBatchUrls {
-                        try fm.moveItem(at: rbUrl, to: relatedDirIn) 
+                        let destUrl = relatedDirIn.appendingPathComponent(blockfilename, isDirectory: false)
+                        try fm.moveItem(at: rbUrl, to: destUrl) 
                     }
                 }
             }
@@ -520,14 +527,34 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         }
     }
     
+    /// runPdfToPrinter sends a single pdf file to this spool's printer
+    ///
+    /// ```
+    /// lpstat -p  # list available printers
+    /// lp -d <PRINTER_NAME> PathToDocument.pdf
+    /// ```
+    ///
     private func runPdfToPrinter(url: URL) {
-        fatalError(":!!!:NYI: runPdfToPrinter(url: URL)")
+        let stageUrl = url.deletingLastPathComponent()
+        let pdfPath = url.path
+        
+        var args = [String]()
+        args.append(contentsOf: ["-d", printerName])
+        args = args + [pdfPath]
+        
+        let executableUrl = URL(fileURLWithPath: "/usr/bin/lp", isDirectory: false)
+        _ = run(
+            executableUrl: executableUrl,
+            withArguments: args,
+            currentDirectory: stageUrl,
+            printStdio: true
+        )
     }
     
     private func runSvgToPdf(jobname: String) {
-        let cachedUrl = self.stage2SvgUrl
-        let inputSvgPath = cachedUrl.appendingPathComponent("\(jobname).svg", isDirectory: false).path
-        let outputPdfPath = cachedUrl.appendingPathComponent("\(jobname).pdf", isDirectory: false).path
+        let stageUrl = self.stage2SvgUrl
+        let inputSvgPath = stageUrl.appendingPathComponent("\(jobname).svg", isDirectory: false).path
+        let outputPdfPath = stageUrl.appendingPathComponent("\(jobname).pdf", isDirectory: false).path
         
         var args = [String]()
         // --width=WIDTH    Scale image to be width of WIDTH pixels.
@@ -553,10 +580,9 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         _ = run(
             executableUrl: executableUrl,
             withArguments: args,
-            currentDirectory: cachedUrl,
+            currentDirectory: stageUrl,
             printStdio: true
         )
     }
 
-    
 }

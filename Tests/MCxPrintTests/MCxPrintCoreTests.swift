@@ -8,8 +8,26 @@
 import XCTest
 @testable import MCxPrintCore
 
+/// MCxPrintCoreTests
 class MCxPrintCoreTests: XCTestCase {
 
+    /// Use `lpstat -p` to find available printers
+    ///
+    /// * Brother_PT_9500PC
+    /// * EPSON_Stylus_Photo_R2880
+    /// * EPSON_WF_7520
+    ///
+    /// See also: 
+    /// * http://www.it.uu.se/datordrift/maskinpark/skrivare/cups/ 
+    /// * https://www.cyberciti.biz/tips/linux-unix-sets-the-page-size-to-size.html
+    ///
+    /// CUPS configuration: http://localhost:631/ or /etc/cups/cupsd.conf 
+    /// * Can pdf be printed manually?
+
+    let printerDefault = "EPSON_WF_7520"
+    let printerForBookLabels = "Brother_PT_9500PC"
+    let printerForFileLabels = "EPSON_WF_7520"
+    let enablePrinter = true
     
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -24,88 +42,86 @@ class MCxPrintCoreTests: XCTestCase {
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 
-    func testInventoryPartLabel() {
-        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelpart", batchSize: 12)
-        InventoryPartLabel.queue = queue
-        let cachedUrl = queue.stage2SvgUrl
-
-        let partA = InventoryPartLabel(
-            name: "Resistor",
-            value: "100K",
-            description: "carbon"
-        )
-        let svgPartA = partA.svg()
-        try? svgPartA.write(to: cachedUrl.appendingPathComponent("TestPartA.svg"), atomically: false, encoding: .utf8)
-        
-        queue.svgToPdf(basename: "TestPartA")
-        
-        let partB = InventoryPartLabel(
-            name: "9DOF Sensor",
-            value: "Adafruit-12345",
-            description: ""
-        )
-        let svgPartB = partB.svg()
-        try? svgPartB.write(to: cachedUrl.appendingPathComponent("TestPartB.svg"), atomically: false, encoding: .utf8)
-        
-        queue.svgToPdf(basename: "TestPartB")
+    func testInventoryPartLabel() throws {
+//        let spool = try MCxPrintSpool( 
+//            "/var/spool/mcxprint_spool/test/labelpart", 
+//            batchSize: 12, 
+//            jsonSpooler: <#T##MCxPrintJsonSpoolable.Type#>, 
+//            svgSpooler: <#T##MCxPrintSvgSpoolable.Type#>
+//        )
+//        let cachedUrl = spool.stage2SvgUrl
+//
+//        let partA = InventoryPartsLabel(
+//            name: "Resistor",
+//            value: "100K",
+//            description: "carbon"
+//        )
+//        let svgPartA = partA.svg()
+//        try? svgPartA.write(to: cachedUrl.appendingPathComponent("TestPartA.svg"), atomically: false, encoding: .utf8)
+//        
+//        spool.svgToPdf(basename: "TestPartA")
+//        
+//        let partB = InventoryPartsLabel(
+//            name: "9DOF Sensor",
+//            value: "Adafruit-12345",
+//            description: ""
+//        )
+//        let svgPartB = partB.svg()
+//        try? svgPartB.write(to: cachedUrl.appendingPathComponent("TestPartB.svg"), atomically: false, encoding: .utf8)
+//        
+//        spool.svgToPdf(basename: "TestPartB")
     }
 
-    func testLibraryBookLabel() {
-        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelbook", batchSize: 1)
-        LibraryBookLabel.queue = queue
-        let cachedUrl = queue.stage2SvgUrl
-
-        let labelBookA = LibraryBookLabel(
-            udcCall: "004.52-•-MC-WEDN",
-            udcLabel: "Generic Labels - SVG Layout Example",
-            collectionSID: "Reference"
+    func testLibraryBookLabel() throws {
+        let spool = try MCxPrintSpool(
+            "/var/spool/mcxprint_spool/test/labelbook", 
+            batchSize: 1, 
+            jsonSpooler: LibraryBookLabel.self, 
+            svgSpooler: LibraryBookLabel.self, 
+            printerName: printerForBookLabels
         )
-        let svgBookA = labelBookA.svg()
-        try? svgBookA.write(to: cachedUrl.appendingPathComponent("TestBookA.svg"), atomically: false, encoding: .utf8)
+
+        //let labelBook = LibraryBookLabel(
+        //    udcCall: "004.52-•-MC-WEDN",
+        //    udcLabel: "Generic Labels - SVG Layout Example",
+        //    collectionSID: "Reference"
+        //)
         
-        queue.svgToPdf(basename: "TestBookA")
-        
-        let labelBookB = LibraryBookLabel(
+        let labelBook = LibraryBookLabel(
             udcCall: "621.382202855132-•-EgPyM-CLADSP-v1991",
             udcLabel: "Signal processing - Specific programming language",
             collectionSID: "Oversize"
         )
-        let svgBookB = labelBookB.svg()
-        try? svgBookB.write(to: cachedUrl.appendingPathComponent("TestBookB.svg"), atomically: false, encoding: .utf8)
         
-        queue.svgToPdf(basename: "TestBookB")
-        
-        // write to and read from spool directory
-        if let spoolBookUrlA = labelBookA.spoolAdd(),
-            let spoolBookUrlB = labelBookB.spoolAdd()
-        {
-            print("spoolBookUrlA: \(spoolBookUrlA.path)")
-            print("spoolBookUrlB: \(spoolBookUrlB.path)")
-            
-            do {
-                let spoolLabelA = try LibraryBookLabel(jsonFileUrl: spoolBookUrlA)
-                let spoolLabelB = try LibraryBookLabel(jsonFileUrl: spoolBookUrlB)
-                XCTAssert(spoolLabelA.udcCall == labelBookA.udcCall)
-                XCTAssert(spoolLabelB.udcCall == labelBookB.udcCall)
-                XCTAssert(true, "read spool files OK.")
-            }
-            catch {
-                XCTFail("testLibraryBookLabel()")
-            }
+        // Add
+        _ = spool.spoolAddStage1Json(item: labelBook)
+        // Process
+        _ = spool.processJobsStage1Json()
+        _ = spool.processJobsStage2Svg()
+        if enablePrinter {
+            _ = spool.processJobsStage3Pdf()
         }
     }
     
-    func testFontMetricsPage() {
-        let queue = MCxPrintSpool("/var/spool/mcxprint_spool/test/scratch", batchSize: 1)
-        let cachedUrl = queue.stage2SvgUrl
+    func testFontMetricsPage() throws {
+        let spool = try MCxPrintSpool(
+            "/var/spool/mcxprint_spool/test/scratch", 
+            batchSize: 1, 
+            jsonSpooler: FontMetricsPage.self, 
+            svgSpooler: FontMetricsPage.self, 
+            printerName: printerDefault
+        )
 
         // ------------------
         // -- Font Metrics --
         let fontMetricsPage = FontMetricsPage()
-        let fontMetricsPageSvg = fontMetricsPage.svg()
-        try? fontMetricsPageSvg.write(to: cachedUrl.appendingPathComponent("TestFontMetricsPage.svg"), atomically: false, encoding: .utf8)
-        
-        queue.svgToPdf(basename: "TestFontMetricsPage")
+        // Add
+        _ = spool.spoolAddStage2Svg(item: fontMetricsPage)
+        // Process
+        _ = spool.processJobsStage2Svg()
+        if enablePrinter {
+            _ = spool.processJobsStage3Pdf()
+        }
     }
     
     func testCreateUnicodeFontMap() {
@@ -119,9 +135,15 @@ class MCxPrintCoreTests: XCTestCase {
         }
     }
     
-    func testLibraryFilePage() {
-        let spool = MCxPrintSpool("/var/spool/mcxprint_spool/test/labelfile", batchSize: 2)
-
+    func testLibraryFilePage() throws {
+        let spool = try MCxPrintSpool(
+            "/var/spool/mcxprint_spool/test/labelfile", 
+            batchSize: 9, // 2 or 9
+            jsonSpooler: LibraryFileLabel.self, 
+            svgSpooler: LibraryFilePage.self, 
+            printerName: printerDefault
+        )
+        
         let fileLabelA = LibraryFileLabel(
             title: "Wingding Everest Dialog Network",
             udcCall: "004.52-•-MC-WEDN v12 n92 g88 w00 zaqt",
@@ -145,7 +167,7 @@ class MCxPrintCoreTests: XCTestCase {
             collectionSID: "Business",
             collectionColor: LabelColorTheme.business
         )
-
+        
         let fileLabelD = LibraryFileLabel(
             title: "Next Big Thing in Pattern Information Processing",
             udcCall: "004.93-•-MCa-NBTPIP",
@@ -155,73 +177,54 @@ class MCxPrintCoreTests: XCTestCase {
         )
         let fileLabelE = LibraryFileLabel(
             title: "People: Glad to meet you.",
-            udcCall: "005.7565-FMKR-Fil-FPASC",
+            udcCall: "005.7565-FMKR-Fil-PGMY",
             udcLabel: "Activity with goal & timetable",
             collectionSID: "People",
             collectionColor: LabelColorTheme.people
         )
         let fileLabelF = LibraryFileLabel(
             title: "FileMaker Pro 9 Advanced Software Migration From Project",
-            udcCall: "005.7565-FMKR-Fil-FPASC",
+            udcCall: "005.7565-FMKR-Fil-FPAMP",
             udcLabel: "Specific relational database management system activity with goal & timetable",
             collectionSID: "Project",
             collectionColor: LabelColorTheme.project
         )
         let fileLabelG = LibraryFileLabel(
             title: "Records: Historic Documents",
-            udcCall: "005.7565-FMKR-Fil-FPASC",
+            udcCall: "005.7565-FMKR-Fil-RHD",
             udcLabel: "Signed documents, etc.",
             collectionSID: "Record",
             collectionColor: LabelColorTheme.record
         )
         let fileLabelH = LibraryFileLabel(
             title: "Reference Materials",
-            udcCall: "005.7565-FMKR-Fil-FPASC",
+            udcCall: "005.7565-FMKR-Fil-RM",
             udcLabel: "General catalog of knowledge",
             collectionSID: "Reference",
             collectionColor: LabelColorTheme.reference
         )
         let fileLabelI = LibraryFileLabel(
             title: "System: Infrastructure",
-            udcCall: "005.7565-FMKR-Fil-FPASC",
+            udcCall: "005.7565-FMKR-Fil-SI",
             udcLabel: "For example, file section dividers.",
             collectionSID: "System",
             collectionColor: LabelColorTheme.system
         )
         
         let labelArray = [fileLabelA, fileLabelB, fileLabelC, fileLabelD, fileLabelE, fileLabelF, fileLabelG, fileLabelH, fileLabelI]
-        let page = LibraryFilePage(labels: labelArray)
         
-        let pageSvg = page.svg(framed: false)
-        try? pageSvg.write(to: spool.stage2SvgUrl.appendingPathComponent("TestLibraryFilePage.svg"), atomically: false, encoding: .utf8)
-        
-        spool.svgToPdf(basename: "TestLibraryFilePage")
-        
-        // write to and read from spool directory
-        if let spoolUrlA = fileLabelA.spoolWrite(spool: spool),
-            let spoolUrlB = fileLabelB.spoolWrite(spool: spool),
-            let spoolUrlC = fileLabelC.spoolWrite(spool: spool)
-        {
-            print("spoolUrlA: \(spoolUrlA.path)")
-            print("spoolUrlB: \(spoolUrlB.path)")
-            print("spoolUrlC: \(spoolUrlC.path)")
-            
-            do {
-                let spoolLabelA = try LibraryFileLabel(jsonFileUrl: spoolUrlA)
-                let spoolLabelB = try LibraryFileLabel(jsonFileUrl: spoolUrlB)
-                let spoolLabelC = try LibraryFileLabel(jsonFileUrl: spoolUrlC)
-                XCTAssert(spoolLabelA.udcCall == fileLabelA.udcCall)
-                XCTAssert(spoolLabelB.udcCall == fileLabelB.udcCall)
-                XCTAssert(spoolLabelC.udcCall == fileLabelC.udcCall)
-                XCTAssert(true, "read spool files OK.")
-            }
-            catch {
-                XCTFail("testLibraryFilePage()")
-            }
+        for label in labelArray {
+            // Add
+            _ = spool.spoolAddStage1Json(item: label)
         }
-        else {
-            XCTFail("testLibraryFilePage()")
+        
+        // Process
+        _ = spool.processJobsStage1Json()
+        _ = spool.processJobsStage2Svg()
+        if enablePrinter {
+            _ = spool.processJobsStage3Pdf()
         }
+        
     }
     
     func testStringEncoding() {
@@ -232,10 +235,6 @@ class MCxPrintCoreTests: XCTestCase {
         """
         textContainingUnicode.filterToSvgAscii()
         print("🌊 \(textContainingUnicode)")
-    }
-    
-    func testLabelJson() {
-        
     }
     
     func testFilterToSvgAscii() {
@@ -304,7 +303,6 @@ class MCxPrintCoreTests: XCTestCase {
         ("testCreateUnicodeFontMap", testCreateUnicodeFontMap),
         ("testLibraryFilePage", testLibraryFilePage),
         ("testStringEncoding", testStringEncoding),
-        ("testLabelJson", testLabelJson),
         ("testFilterToSvgAscii", testFilterToSvgAscii),        
         ("testPerformanceExample", testPerformanceExample)
     ]
