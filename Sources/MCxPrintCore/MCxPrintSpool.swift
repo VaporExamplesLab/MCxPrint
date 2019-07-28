@@ -140,9 +140,16 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
     /// spoolAddStage2Svg(item: MCxPrintSvgSpoolable) adds 1 SVG job page
     ///
     /// Scope: Does not manage any Stage 1 JSON content. Bypasses Stage 1 JSON.
-    public func spoolAddStage2Svg(item: MCxPrintSvgSpoolable) -> URL? {
-        let datestamp = DateTimeUtil.getSpoolTimestamp()
-        let jobname = "\(datestamp)_\(item.toSpoolJobBasename())"
+    public func spoolAddStage2Svg(item: MCxPrintSvgSpoolable, jobname jobnameOptional: String?) -> URL? {
+        let jobname: String!
+        if jobnameOptional == nil {
+            let datestamp = DateTimeUtil.getSpoolTimestamp()
+            jobname = "\(datestamp)_\(item.toSpoolJobBasename())"
+        }
+        else {
+            jobname = jobnameOptional!
+        }
+        
         let svgJobUrl = self.stage2SvgUrl
             .appendingPathComponent(jobname)
             .appendingPathExtension("svg")
@@ -205,7 +212,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
                 
                 // convert batch
                 if let svgSpoolable = try? svgSpooler.init(jsonUrlBlocks: jsonBatchUrls) {
-                    if let newSvgJob = spoolAddStage2Svg(item: svgSpoolable) {
+                    if let newSvgJob = spoolAddStage2Svg(item: svgSpoolable, jobname: jobname) {
                         // move batch to next stage
                         let movedUrl = moveAlong(stage: .stage1Json, jobname: jobname, batch: jsonBatchUrls)
                         if let newJobUrl = movedUrl {
@@ -349,10 +356,26 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
                     }
                 }
             } 
+            readyUrls = readyUrls.sorted { 
+                (urlA, urlB) -> Bool in
+                return urlA.lastPathComponent < urlB.lastPathComponent 
+            }
+            remainderUrls = remainderUrls.sorted { 
+                (urlA, urlB) -> Bool in
+                return urlA.lastPathComponent < urlB.lastPathComponent 
+            }
             return (readyUrls, remainderUrls)
         } 
         catch {
             print(":ERROR:AknowtzPrintSpool:getJobUrls(stage: \(stage)) \(error)")
+            readyUrls = readyUrls.sorted { 
+                (urlA, urlB) -> Bool in
+                return urlA.lastPathComponent < urlB.lastPathComponent 
+            }
+            remainderUrls = remainderUrls.sorted { 
+                (urlA, urlB) -> Bool in
+                return urlA.lastPathComponent < urlB.lastPathComponent 
+            }
             return (readyUrls, remainderUrls)
         }
     }

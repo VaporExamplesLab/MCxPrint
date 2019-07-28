@@ -125,7 +125,11 @@ public struct LibraryFilePage: MCxPrintSvgSpoolable {
     }
     
     public func spoolAddStage2Svg(spool: MCxPrintSpoolProtocol) -> URL? {
-        return spool.spoolAddStage2Svg(item: self)
+        return spool.spoolAddStage2Svg(item: self, jobname: nil)
+    }
+    
+    public func spoolAddStage2Svg(spool: MCxPrintSpoolProtocol, jobname: String?) -> URL? {
+        return spool.spoolAddStage2Svg(item: self, jobname: jobname)
     }
 
     

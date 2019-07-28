@@ -20,7 +20,7 @@ public protocol MCxPrintSpoolProtocol {
     
     /// Add Jobs
     func spoolAddStage1Json(item: MCxPrintJsonSpoolable) -> URL?
-    func spoolAddStage2Svg(item: MCxPrintSvgSpoolable) -> URL?
+    func spoolAddStage2Svg(item: MCxPrintSvgSpoolable, jobname jobnameOptional: String?) -> URL?
     
     // Process Stages
     // returns jobes completed

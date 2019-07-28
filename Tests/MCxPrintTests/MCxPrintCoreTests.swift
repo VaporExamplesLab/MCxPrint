@@ -11,6 +11,29 @@ import XCTest
 /// MCxPrintCoreTests
 class MCxPrintCoreTests: XCTestCase {
 
+    /*
+     lpstat -p
+     lpoptions -p Brother_PT_9500PC -l
+     
+     PageSize/Media Size: 6mm 9mm 12mm 18mm 24mm *36mm 12mmx2 18mmx2 24mmx2 36mmx2 12mmx3 18mmx3 24mmx3 36mmx3 12mmx4 18mmx4 24mmx4 36mmx4 AV1789 AV1957 AV2067 C_36mm_01 C_24mm_02 C_6mm_03 C_18mm_04 C_9mm_05 C_18mm_06 C_9mm_07 C_12mm_08 C_6mm_09 C_9mm_10 C_24mm_11 C_6mm_12 C_36mm_13 Custom.WIDTHxHEIGHT
+     
+     BrTapeLength/Length: *4
+     BrMargin/Margin: *1
+     Resolution/Quality: *360x360dpi 360x720dpi
+     BrHalftonePattern/Halftone: BrBinary BrDither *BrErrorDiffusion
+     BrBrightness/Brightness: 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 *0 -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16 -17 -18 -19 -20
+     BrContrast/Contrast: 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 *0 -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16 -17 -18 -19 -20
+     BrAutoTapeCut/Auto Cut: OFF *ON
+     BrMirror/Mirror Printing: *OFF ON
+     BrHalfCut/Half Cut: *OFF ON
+     BrChainPrint/Chain Printing: *OFF ON
+     
+     Custom.WIDTHxHEIGHT
+     
+     lp -o landscape -o scaling=75 -o media=A4 filename.jpg
+     
+     */
+    
     /// Use `lpstat -p` to find available printers
     ///
     /// * Brother_PT_9500PC
@@ -72,6 +95,8 @@ class MCxPrintCoreTests: XCTestCase {
 //        spool.svgToPdf(basename: "TestPartB")
     }
 
+    // :NYI:!!!: based on pdf print, resize to 0.94" x 2.76" ~ 24mm x 70mm
+    // if custom page size is not supported.
     func testLibraryBookLabel() throws {
         let spool = try MCxPrintSpool(
             "/var/spool/mcxprint_spool/test/labelbook", 
@@ -116,7 +141,7 @@ class MCxPrintCoreTests: XCTestCase {
         // -- Font Metrics --
         let fontMetricsPage = FontMetricsPage()
         // Add
-        _ = spool.spoolAddStage2Svg(item: fontMetricsPage)
+        _ = spool.spoolAddStage2Svg(item: fontMetricsPage, jobname: nil)
         // Process
         _ = spool.processJobsStage2Svg()
         if enablePrinter {
