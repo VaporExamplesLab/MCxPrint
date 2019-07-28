@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct InventoryPartsLabel: Codable { // MCxPrintSvgSpoolable
+public struct InventoryPartsPage { // MCxPrintSvgSpoolable
     
     let labels: [InventoryPartsLabel]
     
