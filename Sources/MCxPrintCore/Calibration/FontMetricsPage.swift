@@ -241,6 +241,10 @@ public struct FontMetricsPage: MCxPrintJsonSpoolable, MCxPrintSvgSpoolable {
         fatalError(":NYI: FontMetricsPage toSpoolJsonStr()")
     }
     
+    public func toSpoolSvgPreview(framed: Bool, standalone: Bool) -> Data? {
+        return self.svg().data(using: String.Encoding.utf8)
+    }
+    
     // ////////////////////////////
     // MARK: - MCxPrintSvgSpoolable
     // ////////////////////////////

@@ -316,14 +316,13 @@ public extension String {
         self.append(tagBefore + textEncoded + tagAfter)
     }
     
-    /// svgAddTextBox ... removes reduces whitespace to single spaces.
+    /// svgAddTextBox ... reduces whitespace to single spaces.
     ///
     /// ```
     /// <svg style="border:1px solid blue;" text-anchor="end"> 
     ///   <text font-size="30px"> 
     ///     <tspan x="100%" dy="30">tspan line 1</tspan> 
     ///     <tspan x="100%" dy="35">tspan line 2</tspan> 
-    ///     <tspan x="100%" dy="35">tspan line 3</tspan> 
     ///   </text>
     /// </svg>
     /// ```
@@ -339,15 +338,16 @@ public extension String {
         fontLineHeight: CGFloat,
         bounds: CGSize,
         position: CGPoint,
+        textAnchor: String = "start",
         framed: Bool = false
         ) {
-        let textWrapped = font.wordwrap(string: text, width: bounds.width)
+        let textWrapped: [String] = font.wordwrap(string: text, width: bounds.width)
         
         var s = ""
         var lineY: CGFloat = 0.0 // font.ptsAscent
         for line in textWrapped {
             if lineY + font.fontSize + font.ptsDescent < bounds.height {
-                s.svgAddText(text: line, x: 0, y: lineY, fill: fill, fontFamily: font.fontFamily, fontSize: font.fontSize) // textAnchor: String
+                s.svgAddText(text: line, x: 0, y: lineY, fill: fill, fontFamily: font.fontFamily, fontSize: font.fontSize, textAnchor: textAnchor) // textAnchor: String
             }
             else {
                 break
@@ -360,10 +360,18 @@ public extension String {
         s.svgWrapGroup(translate: (position.x, position.y))
         
         if framed {
-            s.svgAddRect(
-                x: position.x, y: position.y - font.ptsAscent, 
-                width: bounds.width, height: bounds.height, 
-                stroke: "black", strokeWidth: 0.25)
+            if textAnchor.lowercased() == "start" {
+                s.svgAddRect(
+                    x: position.x, y: position.y - font.ptsAscent, 
+                    width: bounds.width, height: bounds.height, 
+                    stroke: "black", strokeWidth: 0.25)
+            } 
+            else if textAnchor.lowercased() == "end" {
+                s.svgAddRect(
+                    x: position.x - bounds.width, y: position.y - font.ptsAscent, 
+                    width: bounds.width, height: bounds.height, 
+                    stroke: "black", strokeWidth: 0.25)
+            } 
         }
         
         self.append(s)

@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// public struct MCxPrintSpoolManager
+/// public struct MCxPrintSpool
 ///
 /// * rootUrl/
 ///     * stage1JsonUrl/
@@ -28,10 +28,15 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
     // 
     private let jsonSpooler: MCxPrintJsonSpoolable.Type
     private let svgSpooler: MCxPrintSvgSpoolable.Type
-    private let printerName: String
+    private let jobOptions: MCxPrintJobOptions
             
     /// root url directory contains stage2SvgUrl/, stage3PdfUrl/, stage4PrintedUrl/ subdirectories.
-    public init(_ rootPath: String, batchSize: Int, jsonSpooler: MCxPrintJsonSpoolable.Type, svgSpooler: MCxPrintSvgSpoolable.Type, printerName: String) throws {
+    public init(_ rootPath: String, batchSize: Int, jsonSpooler: MCxPrintJsonSpoolable.Type, svgSpooler: MCxPrintSvgSpoolable.Type, printerName: String, options: [String]) throws {
+        let jobOptions = MCxPrintJobOptions(printerName: printerName, options: options)
+        try self.init(rootPath, batchSize: batchSize, jsonSpooler: jsonSpooler, svgSpooler: svgSpooler, jobOptions: jobOptions)
+    }
+    
+    public init(_ rootPath: String, batchSize: Int, jsonSpooler: MCxPrintJsonSpoolable.Type, svgSpooler: MCxPrintSvgSpoolable.Type, jobOptions: MCxPrintJobOptions) throws {
         
         let allowedBatchsizes = svgSpooler.jsonBatchAllowedSizes()
         if allowedBatchsizes.contains(batchSize) == false &&
@@ -62,7 +67,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         
         self.jsonSpooler = jsonSpooler
         self.svgSpooler = svgSpooler
-        self.printerName = printerName
+        self.jobOptions = jobOptions
     }
     
     // /////////////
@@ -173,6 +178,11 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         _ = processJobs(stage: .stage1Json)
         _ = processJobs(stage: .stage2Svg)
         return processJobs(stage: .stage3Pdf)
+    }
+    
+    public func processJobsToPreviews() -> [URL] {
+        _ = processJobs(stage: .stage1Json)
+        return processJobs(stage: .stage2Svg)
     }
     
     public func processJobs(stage: MCxPrintSpoolStageType) -> [URL] {
@@ -562,7 +572,7 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         let pdfPath = url.path
         
         var args = [String]()
-        args.append(contentsOf: ["-d", printerName])
+        args.append(contentsOf: jobOptions.getArgs())
         args = args + [pdfPath]
         
         let executableUrl = URL(fileURLWithPath: "/usr/bin/lp", isDirectory: false)

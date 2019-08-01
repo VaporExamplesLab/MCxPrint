@@ -27,12 +27,12 @@ public class PrintTemplate {
         //static let ptouch = CGRect(x: 0.0, y: 0.0, width: 68.0, height: 198.4)
         //static let ptouchLandscape = CGRect(x: 0.0, y: 0.0, width: 198.4, height: 68.0)
         // 198.4 points = 2.7555 in = 69.991 mm, 68.0 points = 0.94444 inch = 23.989 mm
-        // 240.0 points = 3.3333 in = 8.4667 mm
+        // 240.0 points = 3.3333 in = 84.6658 8.4667 mm
         static let ptouchPortrait = CGRect(x: 0.0, y: 0.0, width: 68.0, height: 240.0)
         static let ptouchLandscape = CGRect(x: 0.0, y: 0.0, width: 240.0, height: 68.0)
         /// Avery 5027 1/3 cut extra large 3-7/16"x15/16"  18/sheet
         /// 3.4375 x 0.9375 inch = 87.3125 x 23.8125 mm = 247.5 x 67.5 points
-        static let avery5027 = CGRect(x: 0.0, y: 0.0, width: 247.5, height: 67.5)
+        static let avery5027 = CGRect(x: 0.0, y: 0.0, width: 247.0, height: 66.0)
     }
         
     /// ##8##

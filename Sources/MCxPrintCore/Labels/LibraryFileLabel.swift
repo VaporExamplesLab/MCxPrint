@@ -49,7 +49,7 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
         }
     }
     
-    // JSON
+    // SVG
     public func svg(framed: Bool = false, standalone: Bool = false) -> String {
         let ptsLabelRect = PrintTemplate.PaperPointRect.avery5027
         //
@@ -67,6 +67,9 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
         var s = ""
         
         // Background
+        // overprint rectangle. highlight: LabelColorRgbHex.grayDark.rawValue
+        s.svgAddRect(x: 0.0 - 4.0, y: 0.0 - 4.0, width: ptsLabelRect.width + 8.0, height: ptsLabelRect.height + 8.0, stroke: colors.aFill, fill: colors.aFill)
+        // label rectangle
         s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: colors.aFill, fill: colors.aFill)
         //s.svgAddRect(x: 0.0, y: 0.0, width: ptsLabelRect.width, height: ptsLabelRect.height, stroke: colors.aFill)
         
@@ -81,7 +84,7 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
             fontLineHeight: ptsFontLineHeight,
             bounds: CGSize(width: ptsMainWidthY, height: ptsFontLineHeight),
             position: CGPoint(x: ptsInsetX, y: ptsCallNumberY),
-            framed: false
+            framed: framed
         )
         
         // Title
@@ -96,7 +99,7 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
             // reduced height by 1.0 pts per line
             bounds: CGSize(width: ptsMainWidthY, height: (ptsFontLineHeight * 2) - 2.0),
             position: CGPoint(x: ptsInsetX, y: ptsTitleY),
-            framed: false
+            framed: framed
         )
         
         // UDC Heading Label
@@ -113,7 +116,7 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
                 x: ptsInsetX, 
                 y: ptsUdcHeadingY
             ),
-            framed: false
+            framed: framed
         )
         
         // Collection String ID
@@ -164,6 +167,9 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
         return nil
     }
 
+    public func toSpoolSvgPreview(framed: Bool, standalone: Bool) -> Data? {
+        return self.svg(framed: framed, standalone: standalone).data(using: String.Encoding.utf8)
+    }
     
 }
 

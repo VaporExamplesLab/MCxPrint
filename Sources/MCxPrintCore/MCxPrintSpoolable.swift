@@ -13,6 +13,8 @@ public protocol MCxPrintJsonSpoolable {
     func toSpoolJobBasename() -> String
     func toSpoolJsonData() -> Data?
     func toSpoolJsonStr() -> String?
+    
+    func toSpoolSvgPreview(framed: Bool, standalone: Bool) -> Data?
 }
 
 public protocol MCxPrintSvgSpoolable {

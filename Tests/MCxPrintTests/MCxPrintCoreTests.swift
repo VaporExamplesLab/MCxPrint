@@ -12,7 +12,11 @@ import XCTest
 class MCxPrintCoreTests: XCTestCase {
 
     /*
+     sudo apt install cups-bsd ## to install BSD lpr
+     
      lpstat -p
+     
+     ---------------------------------
      lpoptions -p Brother_PT_9500PC -l
      
      PageSize/Media Size: 6mm 9mm 12mm 18mm 24mm *36mm 12mmx2 18mmx2 24mmx2 36mmx2 12mmx3 18mmx3 24mmx3 36mmx3 12mmx4 18mmx4 24mmx4 36mmx4 AV1789 AV1957 AV2067 C_36mm_01 C_24mm_02 C_6mm_03 C_18mm_04 C_9mm_05 C_18mm_06 C_9mm_07 C_12mm_08 C_6mm_09 C_9mm_10 C_24mm_11 C_6mm_12 C_36mm_13 Custom.WIDTHxHEIGHT
@@ -30,6 +34,7 @@ class MCxPrintCoreTests: XCTestCase {
      
      Custom.WIDTHxHEIGHT
      
+     -----------------------------
      lpoptions -p EPSON_WF_7520 -l
      
      ColorModel/Color Mode: Gray *RGB
@@ -39,6 +44,7 @@ class MCxPrintCoreTests: XCTestCase {
      MediaType/MediaType: stationery photographic-high-gloss photographic photographic-glossy photographic-matte stationery-inkjet envelope *any
      InputSlot/Media Source: auto main alternate
 
+     ----------------------------------------
      lpoptions -p EPSON_Stylus_Photo_R2880 -l
      
      EPIJ_PSrc/Page Setup: *2 3 40 11 12 13 31 32 41 33 25
@@ -116,10 +122,10 @@ class MCxPrintCoreTests: XCTestCase {
     /// CUPS configuration: http://localhost:631/ or /etc/cups/cupsd.conf 
     /// * Can pdf be printed manually?
 
-    let printerDefault = "EPSON_WF_7520"
-    let printerForBookLabels = "Brother_PT_9500PC"
-    let printerForFileLabels = "EPSON_WF_7520"
-    let enablePrinter = true
+    let defaultPrinter = "EPSON_WF_7520"
+    let booklabelPrinter = "Brother_PT_9500PC"
+    let filelabelPrinter = "EPSON_WF_7520"
+    let inPrinterEnabled = true
     
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -167,12 +173,16 @@ class MCxPrintCoreTests: XCTestCase {
     // :NYI:!!!: based on pdf print, resize to 0.94" x 2.76" ~ 24mm x 70mm
     // if custom page size is not supported.
     func testLibraryBookLabel() throws {
+        let jobOptions = MCxPrintJobOptions(
+            printerName: booklabelPrinter, 
+            options: ["Media=Custom.26x85mm", "Landscape", "Quality=360x720dpi"]
+        )
         let spool = try MCxPrintSpool(
             "/var/spool/mcxprint_spool/test/labelbook", 
             batchSize: 1, 
             jsonSpooler: LibraryBookLabel.self, 
             svgSpooler: LibraryBookLabel.self, 
-            printerName: printerForBookLabels
+            jobOptions: jobOptions
         )
 
         //let labelBook = LibraryBookLabel(
@@ -192,18 +202,22 @@ class MCxPrintCoreTests: XCTestCase {
         // Process
         _ = spool.processJobsStage1Json()
         _ = spool.processJobsStage2Svg()
-        if enablePrinter {
+        if inPrinterEnabled {
             _ = spool.processJobsStage3Pdf()
         }
     }
     
     func testFontMetricsPage() throws {
+        let jobOptions = MCxPrintJobOptions(
+            printerName: defaultPrinter, 
+            options: [] 
+        )
         let spool = try MCxPrintSpool(
             "/var/spool/mcxprint_spool/test/scratch", 
             batchSize: 1, 
             jsonSpooler: FontMetricsPage.self, 
             svgSpooler: FontMetricsPage.self, 
-            printerName: printerDefault
+            jobOptions: jobOptions
         )
 
         // ------------------
@@ -213,7 +227,7 @@ class MCxPrintCoreTests: XCTestCase {
         _ = spool.spoolAddStage2Svg(item: fontMetricsPage, jobname: nil)
         // Process
         _ = spool.processJobsStage2Svg()
-        if enablePrinter {
+        if inPrinterEnabled {
             _ = spool.processJobsStage3Pdf()
         }
     }
@@ -230,12 +244,16 @@ class MCxPrintCoreTests: XCTestCase {
     }
     
     func testLibraryFilePage() throws {
+        let jobOptions = MCxPrintJobOptions(
+            printerName: filelabelPrinter, 
+            options: [] 
+        )
         let spool = try MCxPrintSpool(
             "/var/spool/mcxprint_spool/test/labelfile", 
             batchSize: 9, // 2 or 9
             jsonSpooler: LibraryFileLabel.self, 
             svgSpooler: LibraryFilePage.self, 
-            printerName: printerDefault
+            jobOptions: jobOptions
         )
         
         let fileLabelA = LibraryFileLabel(
@@ -315,7 +333,7 @@ class MCxPrintCoreTests: XCTestCase {
         // Process
         _ = spool.processJobsStage1Json()
         _ = spool.processJobsStage2Svg()
-        if enablePrinter {
+        if inPrinterEnabled {
             _ = spool.processJobsStage3Pdf()
         }
         
