@@ -1,5 +1,5 @@
 //
-//  InentoryPartsPage.swift
+//  InventoryPartsPage.swift
 //  MCxPrint
 //
 //  Created by marc on 2019.07.26.

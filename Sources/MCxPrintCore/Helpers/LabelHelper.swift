@@ -16,12 +16,18 @@ struct LabelHelper {
         var inStr: String = udcStr
         var outStr: [String] = []
         
+        // 080 no decimal
         // 1.234 decimal position = 1
         // 12.34 decimal position = 2
         // 123.4 decimal position = 3
         guard let index = inStr.firstIndex(of: ".") else {
-            print("udcNumberToLine(udcStr) missing decimal: \(udcStr)")
-            fatalError()
+            // 080 no decimal
+            if udcStr.count <= 7 {
+                return [udcStr]
+            }
+            else {
+                fatalError("no decimal UDC case not supported")
+            }
         }
         
         let decimalPosition = inStr.distance(from: inStr.startIndex, to: index)
