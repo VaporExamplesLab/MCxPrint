@@ -122,7 +122,9 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
     
     public func spoolAddStage1Json(item: MCxPrintJsonSpoolable) -> URL? {
         let datestamp = DateTimeUtil.getSpoolTimestamp()
-        let jobname = "\(datestamp)_\(item.toSpoolJobBasename())"
+        let basename = item.toSpoolJobBasename()
+            .replacingOccurrences(of: "/", with: "~")
+        let jobname = "\(datestamp)_\(basename)"
         let jsonJobUrl = self.stage1JsonUrl
             .appendingPathComponent(jobname)
             .appendingPathExtension("json")
@@ -222,12 +224,12 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
                 
                 // convert batch
                 if let svgSpoolable = try? svgSpooler.init(jsonUrlBlocks: jsonBatchUrls) {
-                    if let newSvgJob = spoolAddStage2Svg(item: svgSpoolable, jobname: jobname) {
+                    if let _ = spoolAddStage2Svg(item: svgSpoolable, jobname: jobname) { // newSvgJob 
                         // move batch to next stage
                         let movedUrl = moveAlong(stage: .stage1Json, jobname: jobname, batch: jsonBatchUrls)
                         if let newJobUrl = movedUrl {
                             svgOut.append(newJobUrl)
-                            print(":DEBUG:!!!:???: \(newSvgJob) \(newJobUrl)")
+                            //TBD_Log.verbose(":!!!:???: \(newSvgJob) \(newJobUrl)")
                         } 
                     }
                     
