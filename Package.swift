@@ -8,41 +8,37 @@ let package = Package(
     platforms: [
         // specify each minimum deployment requirement, 
         // otherwise the platform default minimum is used.
-        .macOS(.v10_13),
+        SupportedPlatform.macOS(SupportedPlatform.MacOSVersion.v10_13),
+        SupportedPlatform.iOS(SupportedPlatform.IOSVersion.v12),
     ],
     products: [
         // Products define the executables and libraries produced by a package, 
         // and make them visible to other packages.
-        .library(
-            name: "MCxPrint",
-            type: .static,
-            targets: ["MCxPrintCore"]),
-        .library(
+        Product.executable(
+            name: "MCxPrintExec", 
+            targets: ["MCxPrintCLI"]),
+        Product.library(
             name: "MCxPrintLib",
-            type: .static,
+            type: Product.Library.LibraryType.static,
             targets: ["MCxPrintCore"]),
-//         .library(
-//             name: "MCxPrintCLI",
-//             type: .static,
-//             targets: ["MCxPrintCLI"]),
     ],
     dependencies: [
         // .package( url: " ", from: "1.0.0" )
         // .package( url: " ", .branch("master") )
     ],
     targets: [
-        .target(
+        Target.target(
             name: "MCxPrintCore",
             dependencies: []
         ),
-        .target(
+        Target.target(
             name: "MCxPrintCLI",
             dependencies: ["MCxPrintCore"]
         ),
-        .testTarget(
+        Target.testTarget(
             name: "MCxPrintTests",
             dependencies: ["MCxPrintCore"]
         ),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageVersions: [SwiftVersion.v5]
 )
