@@ -14,9 +14,17 @@ let package = Package(
         // Products define the executables and libraries produced by a package, 
         // and make them visible to other packages.
         .library(
+            name: "MCxPrint",
+            type: .static,
+            targets: ["MCxPrintCore"]),
+        .library(
             name: "MCxPrintLib",
             type: .static,
             targets: ["MCxPrintCore"]),
+//         .library(
+//             name: "MCxPrintCLI",
+//             type: .static,
+//             targets: ["MCxPrintCLI"]),
     ],
     dependencies: [
         // .package( url: " ", from: "1.0.0" )
