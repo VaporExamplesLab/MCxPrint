@@ -9,13 +9,13 @@ let package = Package(
         // specify each minimum deployment requirement, otherwise the platform default minimum is used.
         .macOS(.v10_13),
     ],
-    // products: [
-    //     // Products define the executables and libraries produced by a package, and make them visible to other packages.
-    //     .library(
-    //         name: "MCxPrintCore",
-    //         type: .static,
-    //         targets: ["MCxPrintCore"]),
-    // ],
+    products: [
+        // Products define the executables and libraries produced by a package, and make them visible to other packages.
+        .library(
+            name: "MCxPrintCore",
+            type: .static,
+            targets: ["MCxPrintCore"]),
+    ],
     dependencies: [
         // .package( url: " ", from: "1.0.0" )
         // .package( url: " ", .branch("master") )
