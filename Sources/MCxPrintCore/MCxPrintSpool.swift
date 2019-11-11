@@ -41,11 +41,11 @@ public struct MCxPrintSpool: MCxPrintSpoolProtocol {
         let allowedBatchsizes = svgSpooler.jsonBatchAllowedSizes()
         if allowedBatchsizes.contains(batchSize) == false &&
             svgSpooler.jsonBatchSupportsPartials() == false {
-            throw MCxPrint.Error.unsupportedBatchSize
+            throw MCxPrintCore.Error.unsupportedBatchSize
         }
         if let maxAllowedBatchSize = allowedBatchsizes.max() {
             if batchSize > maxAllowedBatchSize {
-                throw MCxPrint.Error.unsupportedBatchSize
+                throw MCxPrintCore.Error.unsupportedBatchSize
             }            
         } 
         

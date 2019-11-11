@@ -24,7 +24,7 @@ public struct LibraryFilePage: MCxPrintSvgSpoolable {
     
     init(labels: [LibraryFileLabel]) throws {
         if LibraryFilePage.jsonBatchAllowedSizes().contains(labels.count) == false {
-            throw MCxPrint.Error.unsupportedBatchSize 
+            throw MCxPrintCore.Error.unsupportedBatchSize 
         }
         self.labels = labels
     }
@@ -84,21 +84,21 @@ public struct LibraryFilePage: MCxPrintSvgSpoolable {
     
     public init(jsonDataBlocks: [Data]) throws {
         if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonDataBlocks.count) == false {
-            throw MCxPrint.Error.unsupportedBatchSize 
+            throw MCxPrintCore.Error.unsupportedBatchSize 
         }
         fatalError(":NYI: init(jsonDataBlocks: [Data]) not supported ")
     }
     
     public init(jsonStrBlocks: [String]) throws {
         if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonStrBlocks.count) == false {
-            throw MCxPrint.Error.unsupportedBatchSize 
+            throw MCxPrintCore.Error.unsupportedBatchSize 
         }
         fatalError(":NYI: init(jsonStrBlocks: [String]) not supported ")
     }
     
     public init(jsonUrlBlocks: [URL]) throws {
         if LibraryFilePage.jsonBatchAllowedSizes().contains(jsonUrlBlocks.count) == false {
-            throw MCxPrint.Error.unsupportedBatchSize 
+            throw MCxPrintCore.Error.unsupportedBatchSize 
         }
         var itemBlocks = [LibraryFileLabel]()
         for url in jsonUrlBlocks {

@@ -1,5 +1,5 @@
 //
-//  MCxPrint.swift
+//  MCxPrintCore.swift
 //  MCxPrintCore
 //
 //  Created by marc on 2019.06.13.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class MCxPrint {
+public final class MCxPrintCore {
     private let arguments: [String]
 
     public init(arguments: [String] = CommandLine.arguments) { 
@@ -25,7 +25,7 @@ public final class MCxPrint {
     }
 }
 
-public extension MCxPrint {
+public extension MCxPrintCore {
     enum Error: Swift.Error {
         case missingFirstArgument
         case failedToCreateFile

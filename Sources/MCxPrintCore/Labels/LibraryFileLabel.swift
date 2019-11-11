@@ -45,7 +45,7 @@ public struct LibraryFileLabel: Codable, MCxPrintJsonSpoolable {
             self.collectionColor = temp.collectionColor
         } catch {
             print(":ERROR: LibraryFileLabel init() failed url=\(jsonFileUrl) error=\(error)" )
-            throw MCxPrint.Error.failedToLoadFile
+            throw MCxPrintCore.Error.failedToLoadFile
         }
     }
     

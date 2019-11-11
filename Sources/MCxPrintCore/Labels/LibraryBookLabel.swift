@@ -28,7 +28,7 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
     }
     
     public init(itemBlocks: [LibraryBookLabel]) throws {
-        if itemBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        if itemBlocks.count != 1 { throw MCxPrintCore.Error.unsupportedBatchSize }
         let item = itemBlocks[0]
         self.init(
             udcCall: item.udcCall, 
@@ -152,7 +152,7 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
     // ////////////////////////////
         
     public init(jsonDataBlocks: [Data]) throws {
-        if jsonDataBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        if jsonDataBlocks.count != 1 { throw MCxPrintCore.Error.unsupportedBatchSize }
         let jsonData = jsonDataBlocks[0]
         var item: LibraryBookLabel!
         do {
@@ -161,23 +161,23 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
         } 
         catch {
             print(":ERROR: LibraryBookLabel init(jsonDataBlocks) JSON decode failed =\(error)" )
-            throw MCxPrint.Error.failedToInitializeSpoolable
+            throw MCxPrintCore.Error.failedToInitializeSpoolable
         }
         try self.init(itemBlocks: [item])
     }
     
     public init(jsonStrBlocks: [String]) throws {
-        if jsonStrBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        if jsonStrBlocks.count != 1 { throw MCxPrintCore.Error.unsupportedBatchSize }
         let jsonStr = jsonStrBlocks[0]
         guard let data = jsonStr.data(using: String.Encoding.utf8) 
             else {
-                throw MCxPrint.Error.failedToInitializeSpoolable 
+                throw MCxPrintCore.Error.failedToInitializeSpoolable 
         }
         try self.init(jsonDataBlocks: [data])
     }
     
     public init(jsonUrlBlocks: [URL]) throws {
-        if jsonUrlBlocks.count != 1 { throw MCxPrint.Error.unsupportedBatchSize }
+        if jsonUrlBlocks.count != 1 { throw MCxPrintCore.Error.unsupportedBatchSize }
         let jsonUrl = jsonUrlBlocks[0]
         do {
             let data = try Data(contentsOf: jsonUrl)
@@ -185,7 +185,7 @@ public struct LibraryBookLabel: Codable, MCxPrintSpoolable {
         } 
         catch {
             print(":ERROR: LibraryBookLabel init() failed url=\(jsonUrl) error=\(error)" )
-            throw MCxPrint.Error.failedToLoadFile
+            throw MCxPrintCore.Error.failedToLoadFile
         }
     }
     
